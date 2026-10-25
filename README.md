@@ -1,58 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Grupo Tecno Desarrollo — Radio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Web application for an internet radio station: public site, configurable player, listener accounts and a separate administrator panel.
 
-## About Laravel
+The station name, slogan, schedule, hosts and contact details are **placeholders**. Do not add content that has not been approved.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 13, PHP 8.4 |
+| Frontend | Tailwind CSS 4, Vite 8, vanilla JavaScript |
+| Database (local) | SQLite |
+| Database (production) | MySQL (to be confirmed with the hosting plan) |
+| Tests | PHPUnit 12, SQLite in memory |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP **8.4** with `pdo_sqlite` (local) and the usual Laravel extensions.
+- Composer 2.
+- Node.js 24 and pnpm (the repository ships `pnpm-lock.yaml`).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+On this machine PHP 8.4 lives outside `PATH`:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```powershell
+C:\php84\php.exe -v
+C:\php84\php.exe C:\composer\composer.phar --version
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Do not use the XAMPP PHP 8.2 binary for this project.
 
-## Contributing
+## Local setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```powershell
+# 1. Dependencies
+C:\php84\php.exe C:\composer\composer.phar install
+corepack pnpm install --frozen-lockfile
 
-## Code of Conduct
+# 2. Environment
+Copy-Item .env.example .env
+C:\php84\php.exe artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. Database
+C:\php84\php.exe artisan migrate
 
-## Security Vulnerabilities
+# 4. First administrator (interactive, no default password)
+C:\php84\php.exe artisan radio:create-admin
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. Assets
+corepack pnpm run build
+
+# 6. Development server
+C:\php84\php.exe artisan serve
+```
+
+The application is then available at `http://127.0.0.1:8000`.
+
+For frontend hot reload, run `corepack pnpm run dev` in a second terminal.
+
+## Environment variables
+
+The stream is configuration, not code. Add this block to `.env` (and keep it in sync with `.env.example` in your own checkout):
+
+```dotenv
+APP_NAME="Grupo Tecno Desarrollo"
+
+RADIO_STREAM_URL=
+RADIO_STREAM_FORMAT=mp3
+RADIO_STREAM_NAME=
+```
+
+| Variable | Meaning |
+|---|---|
+| `RADIO_STREAM_URL` | Public HTTP(S) URL of the audio stream. **Leave empty** until a provider is confirmed. |
+| `RADIO_STREAM_FORMAT` | `mp3`, `aac` or `hls`. Unknown values fall back to `mp3`. |
+| `RADIO_STREAM_NAME` | Optional display name for the current stream. |
+
+An empty or invalid URL renders the explicit **«Transmisión no configurada»** state: no audio element, no dead button and no console error. Laravel never serves audio.
+
+> The local agent policy in this environment denies edits to `.env` and `.env.example`. The variables above are therefore documented here instead of being pre-filled in the example file. Add them manually before configuring a stream.
+
+Production values must be set in the hosting panel or the server `.env`. Never commit `.env` or real credentials.
+
+## Accounts
+
+| | Listener | Administrator |
+|---|---|---|
+| Guard | `web` | `admin` |
+| Model / table | `User` / `users` | `AdminUser` / `admin_users` |
+| Login | `/login` | `/admin/login` |
+| Panel | `/profile` | `/admin` |
+| Registration | Public | **None** |
+| Provisioning | `/register` | `php artisan radio:create-admin` |
+
+Both guards are independent. A listener session is not valid for the admin panel and an admin session is not valid for listener routes. Administrator password recovery is not implemented; until it is approved, recovery is a server-side operation.
+
+## Tests and quality
+
+```powershell
+C:\php84\php.exe artisan test
+C:\php84\php.exe vendor\bin\pint --test
+C:\php84\php.exe C:\composer\composer.phar audit --locked
+corepack pnpm audit
+corepack pnpm run build
+```
+
+The suite covers the public site and player states, listener registration/login/logout, password reset and token reuse, profile isolation, the separate admin guard, the provisioning command, rate limiting, security headers and the structural presence of CSRF protection.
+
+Laravel skips CSRF enforcement while `APP_ENV=testing`. The 419 path is therefore also verified against a real local server:
+
+```powershell
+# POST /login without _token  -> 419
+# POST /login with a valid _token -> reaches the controller
+```
+
+See `docs/architecture.md` for the layering and security decisions, and `docs/deployment-namecheap.md` before deploying.
+
+## Project layout
+
+```
+app/Domain/          Framework-free values and rules
+app/Application/     Use cases, DTOs and the contracts they need
+app/Infrastructure/  Eloquent repositories, config adapter, hashing
+app/Http/            Controllers, form requests, middleware
+config/radio.php     Stream configuration
+docs/                Architecture and deployment notes
+odd/tasks/           Feature specification and work log
+```
+
+## Known limitations
+
+- HLS plays natively (Safari/iOS). Other browsers show an explicit unsupported state; `hls.js` is a pending decision.
+- Administrator password recovery is not implemented.
+- Email verification is prepared in the schema but not enforced.
+- The public site uses placeholder copy until the station supplies approved content.
+- The streaming provider, SMTP and the Namecheap plan are not confirmed.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Application code for Grupo Tecno Desarrollo. Laravel and third-party packages keep their own licenses.
