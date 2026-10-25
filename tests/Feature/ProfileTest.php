@@ -110,4 +110,78 @@ final class ProfileTest extends TestCase
         $this->assertTrue(Hash::check('brand-new-password', $ana->password));
         $this->assertFalse(Hash::check('current-password', $ana->password));
     }
+
+    public function test_password_changes_are_rate_limited_per_listener_even_across_ips(): void
+    {
+        $ana = User::factory()->create(['password' => bcrypt('current-password')]);
+
+        $this->actingAs($ana)->from('/profile');
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1']);
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->put('/profile/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'brand-new-password',
+                'password_confirmation' => 'brand-new-password',
+            ])->assertSessionHasErrors('current_password');
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2']);
+
+        $this->put('/profile/password', [
+            'current_password' => 'wrong-password',
+            'password' => 'brand-new-password',
+            'password_confirmation' => 'brand-new-password',
+        ])->assertStatus(429);
+    }
+
+    public function test_a_listener_can_change_the_password_within_the_limit(): void
+    {
+        $ana = User::factory()->create(['password' => bcrypt('current-password')]);
+
+        $this->actingAs($ana)->from('/profile');
+
+        for ($attempt = 0; $attempt < 4; $attempt++) {
+            $this->put('/profile/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'brand-new-password',
+                'password_confirmation' => 'brand-new-password',
+            ])->assertSessionHasErrors('current_password');
+        }
+
+        $this->put('/profile/password', [
+            'current_password' => 'current-password',
+            'password' => 'brand-new-password',
+            'password_confirmation' => 'brand-new-password',
+        ])->assertRedirect();
+
+        $this->assertTrue(Hash::check('brand-new-password', $ana->refresh()->password));
+    }
+
+    public function test_the_password_limit_is_scoped_to_the_authenticated_listener(): void
+    {
+        $ana = User::factory()->create(['password' => bcrypt('current-password')]);
+        $beto = User::factory()->create(['password' => bcrypt('current-password')]);
+
+        $this->actingAs($ana)->from('/profile');
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->put('/profile/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'brand-new-password',
+                'password_confirmation' => 'brand-new-password',
+            ])->assertSessionHasErrors('current_password');
+        }
+
+        $this->flushSession();
+
+        $this->actingAs($beto)
+            ->from('/profile')
+            ->put('/profile/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'brand-new-password',
+                'password_confirmation' => 'brand-new-password',
+            ])
+            ->assertSessionHasErrors('current_password');
+    }
 }

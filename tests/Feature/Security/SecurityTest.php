@@ -27,6 +27,7 @@ final class SecurityTest extends TestCase
     public function test_content_security_policy_is_sent_outside_local_environments(): void
     {
         $this->app['env'] = 'production';
+        config(['app.url' => 'https://radio.example.test']);
 
         $response = $this->get('/');
 
@@ -51,7 +52,7 @@ final class SecurityTest extends TestCase
 
     public function test_authentication_routes_run_inside_the_web_group(): void
     {
-        foreach (['login.store', 'register.store', 'password.email', 'password.store', 'profile.update'] as $name) {
+        foreach (['login.store', 'register.store', 'password.email', 'password.store', 'profile.update', 'profile.password'] as $name) {
             $route = Route::getRoutes()->getByName($name);
 
             $this->assertNotNull($route, "Route [{$name}] is missing.");
@@ -67,6 +68,7 @@ final class SecurityTest extends TestCase
             'register.store' => 'throttle:register',
             'password.email' => 'throttle:password-email',
             'password.store' => 'throttle:password-reset',
+            'profile.password' => 'throttle:profile-password',
         ];
 
         foreach ($expected as $name => $middleware) {
@@ -85,5 +87,19 @@ final class SecurityTest extends TestCase
             $this->assertNotNull($route, "Route [{$name}] is missing.");
             $this->assertContains('admin.auth', $route->gatherMiddleware());
         }
+    }
+
+    public function test_profile_updates_do_not_declare_an_arbitrary_rate_limit(): void
+    {
+        $route = Route::getRoutes()->getByName('profile.update');
+
+        $this->assertNotNull($route, 'Route [profile.update] is missing.');
+
+        $throttles = array_filter(
+            $route->gatherMiddleware(),
+            fn (string $middleware): bool => str_starts_with($middleware, 'throttle:'),
+        );
+
+        $this->assertSame([], array_values($throttles));
     }
 }

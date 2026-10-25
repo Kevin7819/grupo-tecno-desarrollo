@@ -65,6 +65,7 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 | Admin persistence | The administrator login has no «Recordarme» option and never calls `attempt(..., true)`; the admin session ends when the browser session ends |
 | Login throttling | `throttle:login` (5/min per email+IP), `throttle:admin-login` |
 | Registration / reset throttling | `throttle:register`, `throttle:password-email`, `throttle:password-reset` |
+| Password change throttling | `throttle:profile-password` (5/min per authenticated listener, 20/min per IP; changing IP does not reset the listener limit) |
 | Reset link origin | `ForceAppUrl` anchors generated URLs to `APP_URL`; the request `Host` is ignored and a non-HTTPS `APP_URL` fails outside `local`/`testing` |
 | Account enumeration | Reset request always answers with the same message; login error is generic |
 | Mass assignment | Explicit `#[Fillable]` attributes on both models |
