@@ -59,7 +59,7 @@ For frontend hot reload, run `corepack pnpm run dev` in a second terminal.
 
 ## Environment variables
 
-The stream is configuration, not code. Add this block to `.env` (and keep it in sync with `.env.example` in your own checkout):
+The stream is configuration, not code. Add this block to `.env`:
 
 ```dotenv
 APP_NAME="Grupo Tecno Desarrollo"
@@ -67,6 +67,8 @@ APP_NAME="Grupo Tecno Desarrollo"
 RADIO_STREAM_URL=
 RADIO_STREAM_FORMAT=mp3
 RADIO_STREAM_NAME=
+
+LOG_LEVEL=warning
 ```
 
 | Variable | Meaning |
@@ -74,10 +76,13 @@ RADIO_STREAM_NAME=
 | `RADIO_STREAM_URL` | Public HTTP(S) URL of the audio stream. **Leave empty** until a provider is confirmed. |
 | `RADIO_STREAM_FORMAT` | `mp3`, `aac` or `hls`. Unknown values fall back to `mp3`. |
 | `RADIO_STREAM_NAME` | Optional display name for the current stream. |
+| `LOG_LEVEL` | Laravel log threshold. `warning` keeps debug noise out of normal logs; use `debug` only while diagnosing. |
+
+`APP_URL` must match the origin you open in the browser. `artisan serve` prints `http://127.0.0.1:8000`; if you open that address while `APP_URL` says `http://localhost:8000`, generated links and the session cookie use different hosts. Keep both values identical in local development.
 
 An empty or invalid URL renders the explicit **«Transmisión no configurada»** state: no audio element, no dead button and no console error. Laravel never serves audio.
 
-> The local agent policy in this environment denies edits to `.env` and `.env.example`. The variables above are therefore documented here instead of being pre-filled in the example file. Add them manually before configuring a stream.
+> The local agent policy in this environment denies edits to `.env` and `.env.example`. `.env.example` therefore keeps the framework defaults; the variables above are documented here instead of being pre-filled. Add them manually before configuring a stream.
 
 Production values must be set in the hosting panel or the server `.env`. Never commit `.env` or real credentials.
 

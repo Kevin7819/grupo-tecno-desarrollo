@@ -58,6 +58,7 @@ APP_NAME="Grupo Tecno Desarrollo"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-domain.example
+LOG_LEVEL=warning
 
 DB_CONNECTION=mysql
 DB_HOST=...
@@ -82,6 +83,8 @@ RADIO_STREAM_URL=
 RADIO_STREAM_FORMAT=mp3
 RADIO_STREAM_NAME=
 ```
+
+`.env.example` ships the framework defaults because the local agent policy blocks editing it. Set every value above in the production `.env`; do not rely on the example file's defaults.
 
 Then:
 
