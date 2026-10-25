@@ -5,6 +5,7 @@ namespace Tests\Feature\Security;
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
@@ -101,5 +102,17 @@ final class SecurityTest extends TestCase
         );
 
         $this->assertSame([], array_values($throttles));
+    }
+
+    public function test_the_web_group_revalidates_the_password_hash_on_each_request(): void
+    {
+        $kernel = $this->app->make(Kernel::class);
+
+        $this->assertTrue(
+            collect($kernel->getMiddlewareGroups()['web'])->contains(
+                fn (string $middleware): bool => is_a($middleware, AuthenticateSession::class, true),
+            ),
+            'The web middleware group must contain AuthenticateSession.',
+        );
     }
 }

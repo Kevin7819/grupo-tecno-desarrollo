@@ -11,6 +11,7 @@ use App\Http\Requests\Profile\UpdateProfileRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 final class ProfileController extends Controller
@@ -55,7 +56,14 @@ final class ProfileController extends Controller
             ]);
         }
 
+        $user = $request->user('web');
+        $user->refresh();
+
         $request->session()->regenerate();
+        $request->session()->put(
+            'password_hash_web',
+            Auth::guard('web')->hashPasswordForCookie((string) $user->getAuthPassword()),
+        );
 
         return back()->with('status', 'Contraseña actualizada.');
     }

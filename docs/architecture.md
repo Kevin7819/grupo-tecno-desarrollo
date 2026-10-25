@@ -62,6 +62,7 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 | CSRF | Laravel `web` group (`PreventRequestForgery`, formerly `ValidateCsrfToken`), never disabled |
 | Password hashing | `LaravelPasswordHasher` → `Hash::make` / `Hash::check` |
 | Session fixation | `session()->regenerate()` after listener and admin login and after password change |
+| Session invalidation | `AuthenticateSession` revalidates `password_hash_web` on every request; a password change refreshes the current session and invalidates the others, and a password reset invalidates all existing sessions |
 | Admin persistence | The administrator login has no «Recordarme» option and never calls `attempt(..., true)`; the admin session ends when the browser session ends |
 | Login throttling | `throttle:login` (5/min per email+IP), `throttle:admin-login` |
 | Registration / reset throttling | `throttle:register`, `throttle:password-email`, `throttle:password-reset` |
@@ -74,6 +75,8 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 | Open redirects | Only `redirect()->intended()` with framework-internal URLs |
 
 URL generation is anchored to `APP_URL` by `ForceAppUrl`, which runs before the rest of the `web` group. The request `Host` and `X-Forwarded-*` headers are not used to build absolute URLs, so a manipulated `Host` cannot change the password reset link. Outside `local` and `testing`, `APP_URL` must use `https://`; an invalid value or an HTTP value stops the request with a `RuntimeException` instead of silently producing an insecure link. The reverse proxy only needs to forward the request; the public origin belongs in `APP_URL`.
+
+Session invalidation uses the session store only: `AuthenticateSession` compares the stored `password_hash_web` with the user's current password hash, so it works with any configured session driver and needs no extra table or dependency.
 
 Email verification stays prepared (`email_verified_at` column) but is not enforced: SMTP is not confirmed and blocking a listener who only wants to hear the radio adds no value.
 
