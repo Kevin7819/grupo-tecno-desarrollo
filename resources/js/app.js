@@ -1,1 +1,1 @@
-//
+import './player.js';

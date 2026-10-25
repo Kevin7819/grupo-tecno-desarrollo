@@ -6,4 +6,72 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand palette — reference values, do not replace with Tailwind approximations. */
+    --color-surface-base: #0D0E12;
+    --color-surface-card: #14171F;
+    --color-surface-border: #232733;
+
+    --color-brand: #FF5528;
+    --color-brand-strong: color-mix(in oklab, #FF5528 88%, black);
+    --color-brand-soft: color-mix(in oklab, #FF5528 14%, #14171F);
+
+    --color-ink: #F3F4F6;
+    --color-ink-muted: #9CA3AF;
+
+    /* Semantic colors, intentionally separate from the brand accent. */
+    --color-success: #22C55E;
+    --color-warning: #F59E0B;
+    --color-danger: #EF4444;
+    --color-info: #38BDF8;
+}
+
+@layer base {
+    :root {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-surface-base text-ink antialiased;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer utilities {
+    .live-dot {
+        @apply inline-block size-2 rounded-full bg-brand;
+    }
+
+    [data-player-state='playing'] .live-dot {
+        animation: live-pulse 1.8s ease-in-out infinite;
+    }
+}
+
+@keyframes live-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
 }

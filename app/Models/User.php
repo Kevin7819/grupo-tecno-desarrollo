@@ -20,13 +20,15 @@ class User extends Authenticatable
     /**
      * Get the attributes that should be cast.
      *
+     * Password hashing is an application-layer decision: the use cases hash
+     * before persisting, so the model must not hash the value a second time.
+     *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 }
