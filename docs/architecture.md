@@ -64,11 +64,14 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 | Session fixation | `session()->regenerate()` after listener and admin login and after password change |
 | Login throttling | `throttle:login` (5/min per email+IP), `throttle:admin-login` |
 | Registration / reset throttling | `throttle:register`, `throttle:password-email`, `throttle:password-reset` |
+| Reset link origin | `ForceAppUrl` anchors generated URLs to `APP_URL`; the request `Host` is ignored and a non-HTTPS `APP_URL` fails outside `local`/`testing` |
 | Account enumeration | Reset request always answers with the same message; login error is generic |
 | Mass assignment | Explicit `#[Fillable]` attributes on both models |
 | Security headers | `SecurityHeaders` middleware (`nosniff`, `DENY`, referrer policy, permissions policy) |
 | CSP | Sent only outside `local`/`testing`, where Vite's dev client would be blocked |
 | Open redirects | Only `redirect()->intended()` with framework-internal URLs |
+
+URL generation is anchored to `APP_URL` by `ForceAppUrl`, which runs before the rest of the `web` group. The request `Host` and `X-Forwarded-*` headers are not used to build absolute URLs, so a manipulated `Host` cannot change the password reset link. Outside `local` and `testing`, `APP_URL` must use `https://`; an invalid value or an HTTP value stops the request with a `RuntimeException` instead of silently producing an insecure link. The reverse proxy only needs to forward the request; the public origin belongs in `APP_URL`.
 
 Email verification stays prepared (`email_verified_at` column) but is not enforced: SMTP is not confirmed and blocking a listener who only wants to hear the radio adds no value.
 

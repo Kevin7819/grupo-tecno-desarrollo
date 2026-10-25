@@ -99,6 +99,8 @@ Do not run `migrate:fresh` against a database that may contain data.
 
 - Point the document root to `public/`.
 - Force HTTPS and redirect HTTP to HTTPS.
+- Set `APP_URL` to the public HTTPS origin (for example `https://your-domain.example`). The application forces that origin for generated URLs, including password reset links, and ignores the request `Host` and `X-Forwarded-Host` headers. A production `APP_URL` with `http://` makes the request fail instead of emitting an insecure link.
+- The reverse proxy may terminate TLS; it only needs to forward the request. Do not add a trusted-host allowlist as a substitute for `APP_URL`: the application does not use the incoming host to build absolute URLs.
 - Ensure `storage/` and `bootstrap/cache/` are writable by the PHP user.
 - Do not grant world-writable permissions (`chmod 777`).
 - Keep `.env`, `composer.lock`, `storage/` and the Laravel root outside the web root.
@@ -111,7 +113,7 @@ In production, `config/session.php` must use secure cookies. Confirm:
 - `SESSION_SECURE_COOKIE=true` (or the equivalent HTTPS-only setting).
 - `SESSION_SAME_SITE=lax`.
 - `SESSION_ENCRYPT` may be enabled after confirming the session driver.
-- `APP_URL` uses `https://`.
+- `APP_URL` uses `https://` and matches the public origin; password reset links are built from it, not from the request host.
 
 ## 6. Mail
 
@@ -120,7 +122,7 @@ Password reset depends on working SMTP.
 1. Configure SMTP.
 2. Register a test listener.
 3. Request a reset link.
-4. Confirm delivery, link host, expiry and single use.
+4. Confirm delivery, that the link host equals `APP_URL`, expiry and single use.
 5. Only then consider enforcing email verification.
 
 ## 7. Queues and scheduled work
