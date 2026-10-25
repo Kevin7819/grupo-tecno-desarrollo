@@ -147,4 +147,31 @@ final class AdminAuthenticationTest extends TestCase
 
         $this->assertFalse(Auth::guard('admin')->check());
     }
+
+    public function test_the_admin_login_form_does_not_offer_remember_me(): void
+    {
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertDontSee('Recordarme');
+    }
+
+    public function test_admin_login_ignores_the_remember_flag(): void
+    {
+        $admin = AdminUser::factory()->create([
+            'email' => 'root@example.com',
+            'password' => bcrypt('admin-password'),
+            'remember_token' => null,
+        ]);
+
+        $response = $this->post('/admin/login', [
+            'email' => 'root@example.com',
+            'password' => 'admin-password',
+            'remember' => '1',
+        ]);
+
+        $response->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertNull($admin->refresh()->remember_token);
+        $response->assertCookieMissing(Auth::guard('admin')->getRecallerName());
+    }
 }

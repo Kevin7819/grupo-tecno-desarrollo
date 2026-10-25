@@ -26,11 +26,6 @@
                 @enderror
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-ink-muted">
-                <input type="checkbox" name="remember" value="1" class="size-4 rounded border-surface-border bg-surface-base">
-                Recordarme
-            </label>
-
             <x-ui.button class="w-full">Entrar</x-ui.button>
         </form>
     </div>

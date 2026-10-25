@@ -20,7 +20,7 @@ Rama: `feature/radio-v1` (HEAD `2d611f3`, árbol limpio al iniciar). Entrega: co
 |---|---|---|---|---|
 | T1 | S1 | inline | Completado | `ForceAppUrl` + `tests/Feature/Auth/PasswordResetHostTest.php` (5 tests, 13 assertions); docs actualizados |
 | T2 | S2 | inline | Completado | `DatabaseSeeder` vacío; factories documentadas como solo-test; `tests/Feature/Security/DatabaseSeederTest.php` (1 test, 4 assertions) |
-| T3 | S3 | inline | Pendiente | — |
+| T3 | S3 | inline | Completado | Checkbox eliminado; `attempt()` sin `remember`; `AdminAuthenticationTest` (12 tests, 57 assertions) |
 | T4 | S4 | inline | Pendiente | — |
 | T5 | S5 | inline | Pendiente | — |
 | T6 | S6 | inline | Pendiente | — |
@@ -35,3 +35,4 @@ Rama: `feature/radio-v1` (HEAD `2d611f3`, árbol limpio al iniciar). Entrega: co
 - **L5 (2026-10-25).** Decisión M4: `StreamConfig::fromValues()` recibe `allowHttp` con valor predeterminado `false`; `ConfigStreamConfigProvider` pasa `app()->environment('local')`. HTTPS se acepta siempre; HTTP solo en local. La CSP ya declara `media-src https:`.
 - **L6 (2026-10-25).** A1 implementado: `app/Http/Middleware/ForceAppUrl.php` valida `APP_URL`, fuerza origen y esquema con `URL::useOrigin()`/`URL::forceScheme()` y se registra al inicio del grupo `web`. En producción (fuera de `local`/`testing`) una `APP_URL` HTTP lanza `RuntimeException`; una URL inválida también. `tests/Feature/Auth/PasswordResetHostTest.php` cubre `Host` manipulado, inspección de la notificación, HTTPS en producción, HTTP local, HTTP rechazado en producción y URL inválida: 5 tests, 13 assertions. `docs/architecture.md` y `docs/deployment-namecheap.md` documentan `APP_URL`, proxy y verificación del enlace.
 - **L7 (2026-10-25).** A2 implementado: `DatabaseSeeder` quedó vacío y sin importar `User`; `UserFactory` y `AdminUserFactory` documentan que su contraseña fija es solo para pruebas; `docs/architecture.md` ya no afirma que no existe un seeder con contraseña conocida y explica el límite de las factories. `tests/Feature/Security/DatabaseSeederTest.php` ejecuta el seeder en SQLite en memoria y comprueba cero usuarios, cero administradores y que `test@example.com`/`password` no autentica en ningún guard: 1 test, 4 assertions.
+- **L8 (2026-10-25).** M1 implementado: se eliminó el checkbox «Recordarme» de `resources/views/admin/login.blade.php`; `Admin\AuthenticatedSessionController::store()` llama `Auth::guard('admin')->attempt($credentials)` sin el flag. El login/logout normal y el login de oyentes no se tocaron. `AdminAuthenticationTest` suma dos pruebas: el formulario no ofrece la opción y un POST con `remember=1` deja `remember_token` nulo y no emite la cookie de persistencia. Suite del archivo: 12 tests, 57 assertions.

@@ -62,6 +62,7 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 | CSRF | Laravel `web` group (`PreventRequestForgery`, formerly `ValidateCsrfToken`), never disabled |
 | Password hashing | `LaravelPasswordHasher` → `Hash::make` / `Hash::check` |
 | Session fixation | `session()->regenerate()` after listener and admin login and after password change |
+| Admin persistence | The administrator login has no «Recordarme» option and never calls `attempt(..., true)`; the admin session ends when the browser session ends |
 | Login throttling | `throttle:login` (5/min per email+IP), `throttle:admin-login` |
 | Registration / reset throttling | `throttle:register`, `throttle:password-email`, `throttle:password-reset` |
 | Reset link origin | `ForceAppUrl` anchors generated URLs to `APP_URL`; the request `Host` is ignored and a non-HTTPS `APP_URL` fails outside `local`/`testing` |
