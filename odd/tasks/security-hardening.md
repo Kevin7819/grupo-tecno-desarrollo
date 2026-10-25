@@ -19,7 +19,7 @@ Rama: `feature/radio-v1` (HEAD `2d611f3`, árbol limpio al iniciar). Entrega: co
 | ID | Specs | Route | Estado | Evidencia |
 |---|---|---|---|---|
 | T1 | S1 | inline | Completado | `ForceAppUrl` + `tests/Feature/Auth/PasswordResetHostTest.php` (5 tests, 13 assertions); docs actualizados |
-| T2 | S2 | inline | Pendiente | — |
+| T2 | S2 | inline | Completado | `DatabaseSeeder` vacío; factories documentadas como solo-test; `tests/Feature/Security/DatabaseSeederTest.php` (1 test, 4 assertions) |
 | T3 | S3 | inline | Pendiente | — |
 | T4 | S4 | inline | Pendiente | — |
 | T5 | S5 | inline | Pendiente | — |
@@ -34,3 +34,4 @@ Rama: `feature/radio-v1` (HEAD `2d611f3`, árbol limpio al iniciar). Entrega: co
 - **L4 (2026-10-25).** Decisión M2: `RateLimiter::for('profile-password')` con dos límites, 5/min por usuario autenticado y 20/min por IP; la ruta usa `throttle:profile-password`. `PATCH /profile` no recibe un límite nuevo.
 - **L5 (2026-10-25).** Decisión M4: `StreamConfig::fromValues()` recibe `allowHttp` con valor predeterminado `false`; `ConfigStreamConfigProvider` pasa `app()->environment('local')`. HTTPS se acepta siempre; HTTP solo en local. La CSP ya declara `media-src https:`.
 - **L6 (2026-10-25).** A1 implementado: `app/Http/Middleware/ForceAppUrl.php` valida `APP_URL`, fuerza origen y esquema con `URL::useOrigin()`/`URL::forceScheme()` y se registra al inicio del grupo `web`. En producción (fuera de `local`/`testing`) una `APP_URL` HTTP lanza `RuntimeException`; una URL inválida también. `tests/Feature/Auth/PasswordResetHostTest.php` cubre `Host` manipulado, inspección de la notificación, HTTPS en producción, HTTP local, HTTP rechazado en producción y URL inválida: 5 tests, 13 assertions. `docs/architecture.md` y `docs/deployment-namecheap.md` documentan `APP_URL`, proxy y verificación del enlace.
+- **L7 (2026-10-25).** A2 implementado: `DatabaseSeeder` quedó vacío y sin importar `User`; `UserFactory` y `AdminUserFactory` documentan que su contraseña fija es solo para pruebas; `docs/architecture.md` ya no afirma que no existe un seeder con contraseña conocida y explica el límite de las factories. `tests/Feature/Security/DatabaseSeederTest.php` ejecuta el seeder en SQLite en memoria y comprueba cero usuarios, cero administradores y que `test@example.com`/`password` no autentica en ningún guard: 1 test, 4 assertions.

@@ -38,7 +38,7 @@ No permission package in v1. The guard *is* the role. A finer role model can be 
 
 ## 3. Admin provisioning
 
-`php artisan radio:create-admin` asks for name, email, password and confirmation. It never prints the password, never truncates the table, and refuses duplicates. There is no default credential and no seeder with a known password.
+`php artisan radio:create-admin` asks for name, email, password and confirmation. It never prints the password, never truncates the table, and refuses duplicates. `DatabaseSeeder` creates no users or administrators. The Eloquent factories keep a fixed password (`password`) for automated tests only; it is public and must never be used in production.
 
 Administrator password recovery is **not** implemented: it was not part of the approved scope, and it would require a separate reset table and broker. Until then, recovery is a server-side operation (create a new administrator or update the hash with `artisan tinker` under server access).
 

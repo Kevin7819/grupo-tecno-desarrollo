@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Test-only factory. Its fixed password is public and must never be used
+ * for a production administrator account.
+ *
  * @extends Factory<AdminUser>
  */
 class AdminUserFactory extends Factory
