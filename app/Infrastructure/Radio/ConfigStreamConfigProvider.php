@@ -13,6 +13,7 @@ final class ConfigStreamConfigProvider implements StreamConfigProvider
             url: config('radio.stream.url'),
             format: config('radio.stream.format'),
             name: config('radio.stream.name'),
+            allowHttp: app()->environment('local'),
         );
     }
 }

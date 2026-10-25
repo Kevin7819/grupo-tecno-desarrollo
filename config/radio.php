@@ -11,6 +11,9 @@ return [
     | renders the player. Leave RADIO_STREAM_URL empty to show the
     | "stream not configured" state instead of a broken control.
     |
+    | Production requires an https:// URL. http:// is accepted only in the
+    | local environment for development streams.
+    |
     | Supported formats: mp3, aac, hls.
     |
     */

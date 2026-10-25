@@ -51,7 +51,7 @@ config/radio.php  ← RADIO_STREAM_URL, RADIO_STREAM_FORMAT, RADIO_STREAM_NAME
 `StreamConfig` is a domain value object. `ConfigStreamConfigProvider` is the only adapter that reads `config()`. Changing provider means changing environment variables; no view or controller changes.
 
 - Empty URL ⇒ `Transmisión no configurada`. No `<audio>` source, no dead button, no console error.
-- Supported formats: `mp3`, `aac`, `hls`. Unknown values fall back to `mp3` and are reported as configured only when the URL is a valid HTTP(S) URL.
+- Supported formats: `mp3`, `aac`, `hls`. Unknown values fall back to `mp3` and are reported as configured only when the URL is a valid HTTPS URL. `http://` is accepted only in the `local` environment; outside `local` it is treated as unconfigured, so the page shows `Transmisión no configurada` instead of `EN VIVO` with audio the CSP (`media-src https:`) would block. Other schemes and malformed URLs are always rejected.
 - HLS is played natively (Safari/iOS). Other browsers get an explicit error state. Adding `hls.js` is a pending decision because it is a new runtime dependency and needs a CSP review.
 - Laravel never streams audio. No streaming server, no proxy, no fake URL.
 

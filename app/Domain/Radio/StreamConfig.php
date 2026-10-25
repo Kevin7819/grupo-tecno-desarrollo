@@ -10,13 +10,13 @@ final readonly class StreamConfig
         public ?string $name,
     ) {}
 
-    public static function fromValues(?string $url, ?string $format, ?string $name): self
+    public static function fromValues(?string $url, ?string $format, ?string $name, bool $allowHttp = false): self
     {
         $url = trim((string) $url);
         $name = trim((string) $name);
 
         return new self(
-            url: self::isPlayableUrl($url) ? $url : null,
+            url: self::isPlayableUrl($url, $allowHttp) ? $url : null,
             format: StreamFormat::fromString($format),
             name: $name !== '' ? $name : null,
         );
@@ -37,7 +37,7 @@ final readonly class StreamConfig
         return $this->format->isHls();
     }
 
-    private static function isPlayableUrl(string $url): bool
+    private static function isPlayableUrl(string $url, bool $allowHttp): bool
     {
         if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
             return false;
@@ -45,6 +45,10 @@ final readonly class StreamConfig
 
         $scheme = mb_strtolower((string) parse_url($url, PHP_URL_SCHEME));
 
-        return in_array($scheme, ['http', 'https'], true);
+        if ($scheme === 'https') {
+            return true;
+        }
+
+        return $allowHttp && $scheme === 'http';
     }
 }

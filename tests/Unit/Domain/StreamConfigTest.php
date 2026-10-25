@@ -48,6 +48,49 @@ final class StreamConfigTest extends TestCase
         $this->assertSame('https://stream.example.com/live.mp3', $config->url);
     }
 
+    public function test_http_url_is_not_configured_by_default(): void
+    {
+        $config = StreamConfig::fromValues('http://stream.example.com/live.mp3', 'mp3', null);
+
+        $this->assertFalse($config->isConfigured());
+        $this->assertNull($config->url);
+    }
+
+    public function test_http_url_is_configured_only_when_explicitly_allowed(): void
+    {
+        $config = StreamConfig::fromValues('http://stream.example.com/live.mp3', 'mp3', null, allowHttp: true);
+
+        $this->assertTrue($config->isConfigured());
+        $this->assertSame('http://stream.example.com/live.mp3', $config->url);
+    }
+
+    public function test_other_schemes_are_rejected_even_when_http_is_allowed(): void
+    {
+        foreach (['ftp://example.com/live.mp3', 'javascript:alert(1)', 'file:///etc/passwd'] as $url) {
+            $config = StreamConfig::fromValues($url, 'mp3', null, allowHttp: true);
+
+            $this->assertFalse($config->isConfigured(), "Expected [{$url}] to be rejected.");
+        }
+    }
+
+    public function test_malformed_urls_are_rejected(): void
+    {
+        $urls = [
+            'https://',
+            'http://',
+            'https:///live.mp3',
+            '//stream.example.com/live.mp3',
+            'stream.example.com/live.mp3',
+            'https://exa mple.com/live.mp3',
+        ];
+
+        foreach ($urls as $url) {
+            $config = StreamConfig::fromValues($url, 'mp3', null, allowHttp: true);
+
+            $this->assertFalse($config->isConfigured(), "Expected [{$url}] to be rejected.");
+        }
+    }
+
     public function test_unknown_format_falls_back_to_mp3(): void
     {
         $config = StreamConfig::fromValues('https://stream.example.com/live', 'ogg', null);

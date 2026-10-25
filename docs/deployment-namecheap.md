@@ -99,6 +99,7 @@ Do not run `migrate:fresh` against a database that may contain data.
 
 - Point the document root to `public/`.
 - Force HTTPS and redirect HTTP to HTTPS.
+- Set `RADIO_STREAM_URL` to an `https://` URL. The player treats `http://` as unconfigured outside `local` because the CSP only allows HTTPS media, so the page shows `Transmisión no configurada` instead of `EN VIVO`.
 - Set `APP_URL` to the public HTTPS origin (for example `https://your-domain.example`). The application forces that origin for generated URLs, including password reset links, and ignores the request `Host` and `X-Forwarded-Host` headers. A production `APP_URL` with `http://` makes the request fail instead of emitting an insecure link.
 - The reverse proxy may terminate TLS; it only needs to forward the request. Do not add a trusted-host allowlist as a substitute for `APP_URL`: the application does not use the incoming host to build absolute URLs.
 - Ensure `storage/` and `bootstrap/cache/` are writable by the PHP user.

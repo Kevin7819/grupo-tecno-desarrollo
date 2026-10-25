@@ -66,6 +66,83 @@ final class PublicSiteTest extends TestCase
         $response->assertDontSee('javascript:alert(1)', false);
     }
 
+    public function test_an_http_stream_is_not_configured_outside_local(): void
+    {
+        config([
+            'radio.stream.url' => 'http://stream.example.com/live.mp3',
+            'radio.stream.format' => 'mp3',
+            'radio.stream.name' => 'Señal de prueba',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Transmisión no configurada');
+        $response->assertDontSee('EN VIVO');
+        $response->assertDontSee('data-stream-url', false);
+    }
+
+    public function test_a_local_http_stream_is_configured(): void
+    {
+        $this->app['env'] = 'local';
+
+        config([
+            'radio.stream.url' => 'http://stream.example.com/live.mp3',
+            'radio.stream.format' => 'mp3',
+            'radio.stream.name' => 'Señal de prueba',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('data-stream-url="http://stream.example.com/live.mp3"', false);
+        $response->assertSee('EN VIVO');
+        $response->assertDontSee('Transmisión no configurada');
+    }
+
+    public function test_an_http_stream_is_not_advertised_when_the_csp_would_block_it(): void
+    {
+        $this->app['env'] = 'production';
+        config(['app.url' => 'https://radio.example.test']);
+
+        config([
+            'radio.stream.url' => 'http://stream.example.com/live.mp3',
+            'radio.stream.format' => 'mp3',
+            'radio.stream.name' => 'Señal de prueba',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Security-Policy');
+        $this->assertStringContainsString(
+            'media-src https:',
+            (string) $response->headers->get('Content-Security-Policy'),
+        );
+        $response->assertSee('Transmisión no configurada');
+        $response->assertDontSee('EN VIVO');
+        $response->assertDontSee('http://stream.example.com/live.mp3', false);
+    }
+
+    public function test_an_https_stream_is_advertised_in_production(): void
+    {
+        $this->app['env'] = 'production';
+        config(['app.url' => 'https://radio.example.test']);
+
+        config([
+            'radio.stream.url' => 'https://stream.example.com/live.mp3',
+            'radio.stream.format' => 'mp3',
+            'radio.stream.name' => 'Señal de prueba',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('https://stream.example.com/live.mp3', false);
+        $response->assertSee('EN VIVO');
+        $response->assertDontSee('Transmisión no configurada');
+    }
+
     public function test_security_headers_are_sent(): void
     {
         $response = $this->get('/');
