@@ -5,15 +5,19 @@ namespace App\Providers;
 use App\Application\Account\ListenerRepository;
 use App\Application\Account\PasswordHasher;
 use App\Application\Admin\AdminAccountRepository;
+use App\Application\Radio\ContactChannelsProvider;
 use App\Application\Radio\StreamConfigProvider;
 use App\Infrastructure\Persistence\Eloquent\EloquentAdminAccountRepository;
 use App\Infrastructure\Persistence\Eloquent\EloquentListenerRepository;
+use App\Infrastructure\Radio\ConfigContactChannelsProvider;
 use App\Infrastructure\Radio\ConfigStreamConfigProvider;
 use App\Infrastructure\Security\LaravelPasswordHasher;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminAccountRepository::class, EloquentAdminAccountRepository::class);
         $this->app->bind(PasswordHasher::class, LaravelPasswordHasher::class);
         $this->app->bind(StreamConfigProvider::class, ConfigStreamConfigProvider::class);
+        $this->app->bind(ContactChannelsProvider::class, ConfigContactChannelsProvider::class);
     }
 
     /**
@@ -36,6 +41,20 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
         $this->configureAuthenticatedRedirects();
+        $this->sharePublicChrome();
+    }
+
+    /**
+     * The public layout renders the on-air badge and the footer channels on
+     * every page, so both values are provided once here instead of being
+     * repeated by each controller.
+     */
+    private function sharePublicChrome(): void
+    {
+        ViewFacade::composer('layouts.app', function (View $view): void {
+            $view->with('stream', $this->app->make(StreamConfigProvider::class)->current());
+            $view->with('contactChannels', $this->app->make(ContactChannelsProvider::class)->current());
+        });
     }
 
     private function configureRateLimiting(): void

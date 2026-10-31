@@ -24,4 +24,27 @@ return [
         'name' => env('RADIO_STREAM_NAME'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public contact channels
+    |--------------------------------------------------------------------------
+    |
+    | Only https:// links and a valid e-mail address are published. Empty
+    | values hide the channel instead of rendering a control that does
+    | nothing. See README.md for the available variables.
+    |
+    */
+
+    'contact' => [
+        'email' => env('RADIO_CONTACT_EMAIL'),
+    ],
+
+    'social' => [
+        'Instagram' => env('RADIO_SOCIAL_INSTAGRAM'),
+        'Facebook' => env('RADIO_SOCIAL_FACEBOOK'),
+        'TikTok' => env('RADIO_SOCIAL_TIKTOK'),
+        'YouTube' => env('RADIO_SOCIAL_YOUTUBE'),
+        'WhatsApp' => env('RADIO_SOCIAL_WHATSAPP'),
+    ],
+
 ];
