@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Grupo Tecno Desarrollo')</title>
     <meta name="description" content="@yield('description', 'Radio por Internet de Grupo Tecno Desarrollo.')">
-    <link rel="icon" href="{{ asset('Logo.png') }}" type="image/png">
+    @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-screen flex-col bg-surface-base text-ink">
@@ -18,7 +18,7 @@
     <header class="border-b border-surface-border">
         <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             <a href="{{ route('home') }}" class="flex items-center gap-3 rounded-lg">
-                <img src="{{ asset('Logo.png') }}" alt="" class="h-8 w-auto">
+                <img src="{{ asset('Logo-mark.png') }}" alt="" width="270" height="325" class="h-8 w-auto rounded-lg">
                 <span class="text-sm font-semibold tracking-wide text-ink">Grupo Tecno Desarrollo</span>
             </a>
             <a href="{{ route('home') }}" class="text-sm text-ink-muted hover:text-ink">Volver al inicio</a>

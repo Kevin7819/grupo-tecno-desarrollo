@@ -6,7 +6,26 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Grupo Tecno Desarrollo')</title>
     <meta name="description" content="@yield('description', 'Radio por Internet de Grupo Tecno Desarrollo.')">
-    <link rel="icon" href="{{ asset('Logo.png') }}" type="image/png">
+
+    @include('partials.favicon')
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Grupo Tecno Desarrollo">
+    <meta property="og:title" content="@yield('title', 'Grupo Tecno Desarrollo')">
+    <meta property="og:description" content="@yield('description', 'Radio por Internet de Grupo Tecno Desarrollo.')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:image" content="{{ asset('Logo.jpg') }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+    <meta property="og:image:alt" content="Logotipo de Grupo Tecno Desarrollo">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="@yield('title', 'Grupo Tecno Desarrollo')">
+    <meta name="twitter:description" content="@yield('description', 'Radio por Internet de Grupo Tecno Desarrollo.')">
+    <meta name="twitter:image" content="{{ asset('Logo.jpg') }}">
+    <meta name="twitter:image:alt" content="Logotipo de Grupo Tecno Desarrollo">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-screen flex-col bg-surface-base text-ink">
@@ -18,7 +37,7 @@
     <header class="border-b border-surface-border">
         <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             <a href="{{ route('home') }}" class="flex items-center gap-3 rounded-lg">
-                <img src="{{ asset('Logo.png') }}" alt="" class="h-9 w-auto">
+                <img src="{{ asset('Logo-mark.png') }}" alt="" width="270" height="325" class="h-9 w-auto rounded-lg">
                 <span class="text-sm font-semibold tracking-wide text-ink">Grupo Tecno Desarrollo</span>
             </a>
 
@@ -46,7 +65,10 @@
 
     <footer class="border-t border-surface-border">
         <div class="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-            <p>Grupo Tecno Desarrollo — Radio por Internet</p>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('Logo-mark.png') }}" alt="" width="270" height="325" class="h-6 w-auto rounded-md">
+                <p>Grupo Tecno Desarrollo — Radio por Internet</p>
+            </div>
             <p>{{ now()->year }}</p>
         </div>
     </footer>
