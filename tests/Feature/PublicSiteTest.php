@@ -32,6 +32,8 @@ final class PublicSiteTest extends TestCase
         $response->assertSee('Transmisión no configurada');
         $response->assertDontSee('data-player-toggle', false);
         $response->assertDontSee('data-player-audio', false);
+        $response->assertDontSee('data-player-volume', false);
+        $response->assertDontSee('data-player-mute', false);
     }
 
     public function test_player_renders_a_configured_stream(): void
@@ -48,6 +50,9 @@ final class PublicSiteTest extends TestCase
         $response->assertSee('https://stream.example.com/live.mp3', false);
         $response->assertSee('Señal de prueba');
         $response->assertSee('data-player-toggle', false);
+        $response->assertSee('data-player-volume', false);
+        $response->assertSee('data-player-mute', false);
+        $response->assertSee('aria-live="polite"', false);
         $response->assertDontSee('Transmisión no configurada');
     }
 
@@ -141,6 +146,28 @@ final class PublicSiteTest extends TestCase
         $response->assertSee('https://stream.example.com/live.mp3', false);
         $response->assertSee('EN VIVO');
         $response->assertDontSee('Transmisión no configurada');
+    }
+
+    public function test_player_exposes_accessible_volume_controls(): void
+    {
+        config([
+            'radio.stream.url' => 'https://stream.example.com/live.mp3',
+            'radio.stream.format' => 'mp3',
+            'radio.stream.name' => 'Señal de prueba',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('id="player-volume"', false);
+        $response->assertSee('for="player-volume"', false);
+        $response->assertSee('type="range"', false);
+        $response->assertSee('min="0"', false);
+        $response->assertSee('max="100"', false);
+        $response->assertSee('step="1"', false);
+        $response->assertSee('aria-describedby="player-volume-help"', false);
+        $response->assertSee('aria-pressed="false"', false);
+        $response->assertSee('data-player-volume-value', false);
     }
 
     public function test_security_headers_are_sent(): void

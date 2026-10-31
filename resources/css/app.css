@@ -35,6 +35,17 @@
         @apply bg-surface-base text-ink antialiased;
     }
 
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Reserved space so the compact player never covers content or the footer.
+       The flag on <body> uses its own attribute name so `[data-mini-player]`
+       keeps matching only the compact player element. */
+    body[data-mini-player-active='true'] {
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+
     :focus-visible {
         outline: 2px solid var(--color-brand);
         outline-offset: 2px;
@@ -52,6 +63,265 @@
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
         }
+    }
+}
+
+@layer components {
+    .volume-range {
+        --volume: 80%;
+        --volume-color: var(--color-brand);
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 2.75rem;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .volume-range:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .volume-range::-webkit-slider-runnable-track {
+        height: 0.375rem;
+        border-radius: 9999px;
+        background: linear-gradient(
+            to right,
+            var(--volume-color) 0%,
+            var(--volume-color) var(--volume),
+            var(--color-surface-border) var(--volume),
+            var(--color-surface-border) 100%
+        );
+    }
+
+    .volume-range::-moz-range-track {
+        height: 0.375rem;
+        border-radius: 9999px;
+        background: var(--color-surface-border);
+    }
+
+    .volume-range::-moz-range-progress {
+        height: 0.375rem;
+        border-radius: 9999px;
+        background: var(--volume-color);
+    }
+
+    .volume-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: -0.4375rem;
+        border: 2px solid var(--volume-color);
+        border-radius: 9999px;
+        background: var(--color-ink);
+        box-shadow: 0 0 0 1px rgb(0 0 0 / 0.45);
+    }
+
+    .volume-range::-moz-range-thumb {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid var(--volume-color);
+        border-radius: 9999px;
+        background: var(--color-ink);
+        box-shadow: 0 0 0 1px rgb(0 0 0 / 0.45);
+    }
+
+    .volume-range:focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 2px;
+        border-radius: 9999px;
+    }
+
+    [data-volume-muted='true'] .volume-range {
+        --volume-color: var(--color-ink-muted);
+    }
+
+    /* Header, sections and shared public UI. Centralised so the same control
+       never changes colour or size between sections. */
+
+    .nav-link {
+        @apply inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-border/50 hover:text-ink;
+    }
+
+    .action-primary {
+        @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-center text-sm font-semibold text-surface-base shadow-lg shadow-black/20 transition-colors hover:bg-brand-strong;
+    }
+
+    .action-secondary {
+        @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-surface-border bg-surface-card px-5 py-3 text-center text-sm font-semibold text-ink transition-colors hover:border-brand hover:text-brand;
+    }
+
+    .action-ghost {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-border/50 hover:text-ink;
+    }
+
+    .chip {
+        @apply inline-flex items-center gap-2 rounded-full border border-surface-border bg-surface-card px-3 py-1 text-xs font-medium text-ink-muted;
+    }
+
+    .section-eyebrow {
+        @apply text-xs font-semibold uppercase tracking-[0.25em] text-brand;
+    }
+
+    .section-title {
+        @apply mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl;
+    }
+
+    .section-lead {
+        @apply mt-4 max-w-2xl text-base text-ink-muted;
+    }
+
+    .surface-card {
+        @apply rounded-2xl border border-surface-border bg-surface-card p-5 sm:p-6;
+    }
+
+    /* Decorative level meter. It never reads the audio signal; the visible
+       caption next to it says so. Animation only runs while playing. */
+
+    .player-visualizer {
+        display: flex;
+        height: 2.5rem;
+        align-items: flex-end;
+        gap: 0.3rem;
+    }
+
+    .player-visualizer > span {
+        display: block;
+        width: 0.35rem;
+        height: 45%;
+        border-radius: 9999px;
+        background: linear-gradient(
+            to top,
+            color-mix(in oklab, #ff5528 45%, transparent),
+            var(--color-brand)
+        );
+        opacity: 0.5;
+        transform: scaleY(0.45);
+        transform-origin: bottom;
+        transition: opacity 200ms ease;
+    }
+
+    .player-visualizer > span:nth-child(2) {
+        height: 70%;
+    }
+
+    .player-visualizer > span:nth-child(3) {
+        height: 55%;
+    }
+
+    .player-visualizer > span:nth-child(4) {
+        height: 92%;
+    }
+
+    .player-visualizer > span:nth-child(5) {
+        height: 38%;
+    }
+
+    .player-visualizer > span:nth-child(6) {
+        height: 66%;
+    }
+
+    .player-visualizer > span:nth-child(7) {
+        height: 48%;
+    }
+
+    [data-player-state='playing'] .player-visualizer > span {
+        opacity: 1;
+        animation: visualizer-bar 1.15s ease-in-out infinite alternate;
+    }
+
+    .player-visualizer > span:nth-child(2) {
+        animation-duration: 0.85s;
+        animation-delay: -0.2s;
+    }
+
+    .player-visualizer > span:nth-child(3) {
+        animation-duration: 1.35s;
+        animation-delay: -0.45s;
+    }
+
+    .player-visualizer > span:nth-child(4) {
+        animation-duration: 0.75s;
+        animation-delay: -0.1s;
+    }
+
+    .player-visualizer > span:nth-child(5) {
+        animation-duration: 1.5s;
+        animation-delay: -0.6s;
+    }
+
+    .player-visualizer > span:nth-child(6) {
+        animation-duration: 0.95s;
+        animation-delay: -0.3s;
+    }
+
+    .player-visualizer > span:nth-child(7) {
+        animation-duration: 1.25s;
+        animation-delay: -0.5s;
+    }
+
+    /* Compact player. It is a second control surface over the same <audio>
+       element, never a second stream. */
+
+    .mini-player {
+        position: fixed;
+        inset-inline: 0;
+        bottom: 0;
+        z-index: 40;
+        border-top: 1px solid var(--color-surface-border);
+        background: color-mix(in oklab, #14171f 94%, transparent);
+        padding-bottom: env(safe-area-inset-bottom);
+        backdrop-filter: blur(14px);
+    }
+
+    /* Gallery tiles: brand illustrations built from gradients, never stock
+       photography presented as the station. */
+
+    .gallery-art {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        border-radius: 1rem;
+        background-color: var(--color-surface-base);
+        aspect-ratio: 4 / 3;
+    }
+
+    .gallery-art--mark {
+        background-image:
+            radial-gradient(75% 90% at 22% 12%, color-mix(in oklab, #ff5528 38%, transparent), transparent 62%),
+            radial-gradient(120% 100% at 90% 110%, #0c2f4d 0%, #0d0e12 68%);
+    }
+
+    .gallery-art--booth {
+        background-image:
+            linear-gradient(135deg, color-mix(in oklab, #ff5528 24%, #14171f) 0%, #0d0e12 58%),
+            repeating-linear-gradient(90deg, rgb(243 244 246 / 0.06) 0 1px, transparent 1px 18px);
+    }
+
+    .gallery-art--signal {
+        background-image:
+            radial-gradient(90% 120% at 50% 120%, color-mix(in oklab, #ff5528 30%, transparent), transparent 60%),
+            repeating-linear-gradient(180deg, rgb(243 244 246 / 0.07) 0 1px, transparent 1px 14px),
+            linear-gradient(180deg, #14171f 0%, #0d0e12 100%);
+    }
+
+    .gallery-art--wave {
+        background-image:
+            radial-gradient(70% 80% at 80% 10%, color-mix(in oklab, #38bdf8 20%, transparent), transparent 60%),
+            radial-gradient(90% 90% at 15% 90%, color-mix(in oklab, #ff5528 26%, transparent), transparent 62%),
+            linear-gradient(180deg, #14171f 0%, #0d0e12 100%);
+    }
+
+    .gallery-art__grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgb(243 244 246 / 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgb(243 244 246 / 0.05) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: radial-gradient(80% 80% at 50% 50%, black, transparent 85%);
     }
 }
 
@@ -73,5 +343,15 @@
 
     50% {
         opacity: 0.35;
+    }
+}
+
+@keyframes visualizer-bar {
+    from {
+        transform: scaleY(0.35);
+    }
+
+    to {
+        transform: scaleY(1);
     }
 }
