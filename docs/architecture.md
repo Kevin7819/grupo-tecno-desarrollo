@@ -92,7 +92,19 @@ Added: `admin_users`. Not added: `admin_password_reset_tokens` (no approved flow
 - **Feature** (`tests/Feature`): HTTP boundaries, guards, validation, throttling, password reset, player states.
 - **Structural security test**: asserts the `web` group still contains a `PreventRequestForgery` instance (the Laravel 13 name; `ValidateCsrfToken` remains a deprecated alias). Laravel skips CSRF enforcement while `APP_ENV=testing`, so the 419 path is additionally verified against a real server during the stage report instead of pretending the suite covers it.
 
-## 8. Pending decisions
+## 8. Brand assets
+
+`public/Logo.jpg` is the canonical logo and is never modified. The small surfaces are deterministic crops of it, generated with `System.Drawing` so the identity is never redrawn:
+
+- `public/Logo-mark.png` — the isometric cube with 24 px of its own background, used by the header of every layout and by the public footer.
+- `public/apple-touch-icon.png` — 180×180 square tile for iOS.
+- `public/favicon.ico` — a real 16/32/48 ICO. It used to be an empty tracked file, so the browser fetched a broken icon.
+
+`resources/views/partials/favicon.blade.php` holds the icon links so the three layouts cannot drift. `tests/Feature/BrandAssetsTest.php` fails when a view references a retired asset, when an asset is missing or empty, when the ICO container is fake, or when the original JPG changes size.
+
+The logo carries its own navy gradient, so it is presented as a rounded plate instead of being keyed to transparency. The blue inside the logo is not a UI token and must not leak into the palette.
+
+## 9. Pending decisions
 
 1. `hls.js` for HLS in non-Safari browsers.
 2. Administrator password recovery flow.
