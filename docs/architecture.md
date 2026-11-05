@@ -104,7 +104,19 @@ Added: `admin_users`. Not added: `admin_password_reset_tokens` (no approved flow
 
 The logo carries its own navy gradient, so it is presented as a rounded plate instead of being keyed to transparency. The blue inside the logo is not a UI token and must not leak into the palette.
 
-## 9. Pending decisions
+## 9. Public homepage and player
+
+The home page is one page with anchored sections (`#inicio`, `#nosotros`, `#programacion`, `#galeria`, `#contacto`) plus the player (`#reproductor`). Navigation and footer link to those fragments through `route('home').'#'` so the links also work from the login and profile pages. There are no placeholder links.
+
+- **Menu**: a disclosure button with `aria-expanded`/`aria-controls` for widths below `lg`. `resources/js/navigation.js` handles Escape, focus return and closing after a link is chosen. Without JavaScript the panel cannot open, which is documented as a known limitation.
+- **Player**: `partials/player.blade.php` renders one `<audio preload="none">` with no `src` until the user presses play. `resources/js/player.js` owns that single element.
+- **Compact player**: `partials/mini-player.blade.php` is a second control surface over the same `<audio>`; it contains no audio element of its own. It appears after the first `playing` event, sets `body[data-mini-player='visible']` so reserved padding keeps it from covering content or the footer, and honours `env(safe-area-inset-bottom)`.
+- **State**: one `setState()` writes the root dataset, the main status region and the compact bar. Only the main region is `aria-live`, so the same message is not announced twice.
+- **Share**: `navigator.share` when available, then `navigator.clipboard`, then a visible read-only field with the link. Each step reports its outcome in a polite status region.
+- **Visualizer**: decorative only. The bars animate through CSS while `[data-player-state='playing']` and a visible caption states that it does not measure the audio. Web Audio analysis was rejected because it requires `crossorigin` on the audio element, which would break playback entirely if the production provider omits CORS headers.
+- **Contact channels**: `ContactChannels` (domain) keeps only a valid e-mail and `https://` URLs, so an unreviewed configuration value can never render a broken or unsafe control. Empty configuration renders an explicit empty state instead of buttons that do nothing.
+
+## 10. Pending decisions
 
 1. `hls.js` for HLS in non-Safari browsers.
 2. Administrator password recovery flow.

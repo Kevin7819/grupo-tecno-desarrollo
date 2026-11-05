@@ -68,6 +68,14 @@ RADIO_STREAM_URL=
 RADIO_STREAM_FORMAT=mp3
 RADIO_STREAM_NAME=
 
+RADIO_CONTACT_EMAIL=
+
+RADIO_SOCIAL_INSTAGRAM=
+RADIO_SOCIAL_FACEBOOK=
+RADIO_SOCIAL_TIKTOK=
+RADIO_SOCIAL_YOUTUBE=
+RADIO_SOCIAL_WHATSAPP=
+
 LOG_LEVEL=warning
 ```
 
@@ -76,6 +84,8 @@ LOG_LEVEL=warning
 | `RADIO_STREAM_URL` | Public HTTP(S) URL of the audio stream. **Leave empty** until a provider is confirmed. |
 | `RADIO_STREAM_FORMAT` | `mp3`, `aac` or `hls`. Unknown values fall back to `mp3`. |
 | `RADIO_STREAM_NAME` | Optional display name for the current stream. |
+| `RADIO_CONTACT_EMAIL` | Public contact address. Invalid values are ignored. |
+| `RADIO_SOCIAL_*` | Official profiles, one per variable. Only `https://` URLs are published. |
 | `LOG_LEVEL` | Laravel log threshold. `warning` keeps debug noise out of normal logs; use `debug` only while diagnosing. |
 
 `APP_URL` must match the origin you open in the browser. `artisan serve` prints `http://127.0.0.1:8000`; if you open that address while `APP_URL` says `http://localhost:8000`, generated links and the session cookie use different hosts. Keep both values identical in local development.
@@ -85,6 +95,22 @@ An empty or invalid URL renders the explicit **«Transmisión no configurada»**
 > The local agent policy in this environment denies edits to `.env` and `.env.example`. `.env.example` therefore keeps the framework defaults; the variables above are documented here instead of being pre-filled. Add them manually before configuring a stream.
 
 Production values must be set in the hosting panel or the server `.env`. Never commit `.env` or real credentials.
+
+### Temporary test stream: Radio Swiss Jazz
+
+The player can be tested with a real external station. Radio Swiss Jazz is **not** the station's own stream, and it must never be described as its own content or programming.
+
+```dotenv
+RADIO_STREAM_URL=https://stream.srg-ssr.ch/srgssr/rsj/mp3/128
+RADIO_STREAM_FORMAT=mp3
+RADIO_STREAM_NAME="Radio Swiss Jazz"
+```
+
+Before using it, the endpoint was verified with `GET` (the server answers `HEAD` with `405`): `200 OK`, `content-type: audio/mpeg`, first bytes `FF FB 94 04` (MPEG-1 Layer III, 128 kbps), `icy-name: Swiss Jazz`, no `icy-metaint` header — the stream carries no in-band metadata, so the player never shows a current track title.
+
+To remove it, empty `RADIO_STREAM_URL` (or delete the three variables). The site then returns to the **«Transmisión no configurada»** state: no audio element, no compact player and no dead controls. `RADIO_STREAM_NAME` is the only visible station name; nothing is hardcoded in the views.
+
+If the endpoint stops working, do not invent a replacement URL: report it and verify a new candidate the same way before configuring it.
 
 ## Accounts
 
