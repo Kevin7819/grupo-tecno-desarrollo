@@ -23,6 +23,9 @@
             'social.created' => 'Enlace social agregado',
             'social.updated' => 'Enlace social actualizado',
             'social.deleted' => 'Enlace social eliminado',
+            'administrator.created' => 'Cuenta administrativa creada',
+            'administrator.updated' => 'Cuenta administrativa actualizada',
+            'administrator.deleted' => 'Cuenta administrativa eliminada',
         ];
 
         $streamState = ! $station->status->isActive()
@@ -135,6 +138,13 @@
             <p class="text-sm text-ink-muted">enlaces sociales activos</p>
             <a href="{{ route('admin.contact.edit') }}" class="action-secondary mt-5 w-full">Administrar contacto</a>
         </section>
+
+        <section class="surface-card">
+            <h2 class="text-lg font-semibold">Cuentas</h2>
+            <p class="mt-4 text-3xl font-semibold">{{ $accountCount }}</p>
+            <p class="text-sm text-ink-muted">cuentas administrativas</p>
+            <a href="{{ route('admin.accounts.index') }}" class="action-secondary mt-5 w-full">Administrar cuentas</a>
+        </section>
     </div>
 
     <div class="mt-8 grid gap-4 lg:grid-cols-2">
@@ -209,6 +219,7 @@
             <a href="{{ route('admin.settings.edit') }}" class="action-secondary">Configuración de la emisora</a>
             <a href="{{ route('admin.content.edit') }}" class="action-secondary">Contenido público</a>
             <a href="{{ route('admin.gallery.create') }}" class="action-secondary">Nueva imagen</a>
+            <a href="{{ route('admin.accounts.create') }}" class="action-secondary">Nueva cuenta administrativa</a>
         </div>
     </section>
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -61,5 +62,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/contacto/redes/{link}', [ContactController::class, 'updateLink'])->name('contact.links.update');
         Route::get('/contacto/redes/{link}/eliminar', [ContactController::class, 'confirmDeleteLink'])->name('contact.links.delete');
         Route::delete('/contacto/redes/{link}', [ContactController::class, 'destroyLink'])->name('contact.links.destroy');
+
+        Route::get('/cuentas', [AdminUserController::class, 'index'])->name('accounts.index');
+        Route::get('/cuentas/nueva', [AdminUserController::class, 'create'])->name('accounts.create');
+        Route::post('/cuentas', [AdminUserController::class, 'store'])->name('accounts.store');
+        Route::get('/cuentas/{account}/editar', [AdminUserController::class, 'edit'])->name('accounts.edit');
+        Route::put('/cuentas/{account}', [AdminUserController::class, 'update'])->name('accounts.update');
+        Route::get('/cuentas/{account}/eliminar', [AdminUserController::class, 'confirmDelete'])->name('accounts.delete');
+        Route::delete('/cuentas/{account}', [AdminUserController::class, 'destroy'])->name('accounts.destroy');
     });
 });
