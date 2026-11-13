@@ -125,6 +125,31 @@ If the endpoint stops working, do not invent a replacement URL: report it and ve
 
 Both guards are independent. A listener session is not valid for the admin panel and an admin session is not valid for listener routes. Administrator password recovery is not implemented; until it is approved, recovery is a server-side operation.
 
+### Development seeders
+
+`php artisan db:seed` creates listener test accounts and a development administrator. Both seeders are gated by `config/seeding.php` and only run in the environments listed there (`local` by default); they never run in production, and they skip instead of inventing a password when the variables are missing.
+
+```dotenv
+ADMIN_SEED_NAME="Administrador de desarrollo"
+ADMIN_SEED_EMAIL=
+ADMIN_SEED_PASSWORD=
+
+SEED_USER_PASSWORD=
+```
+
+| Variable | Meaning |
+|---|---|
+| `ADMIN_SEED_NAME` | Display name of the development administrator. |
+| `ADMIN_SEED_EMAIL` | E-mail of the development administrator. Required. |
+| `ADMIN_SEED_PASSWORD` | Password for that account. Required, at least 12 characters, hashed by Laravel before storage. |
+| `SEED_USER_PASSWORD` | Password shared by the three listener test accounts. Required for listener seeding. |
+
+- `php artisan db:seed` runs every seeder.
+- `php artisan db:seed --class=AdminUserSeeder` runs one.
+- Re-running is safe: accounts are matched by e-mail and existing rows are never modified.
+- To stop seeding, remove the credentials; to provision a real administrator use `php artisan radio:create-admin`.
+
+
 ## Tests and quality
 
 ```powershell
