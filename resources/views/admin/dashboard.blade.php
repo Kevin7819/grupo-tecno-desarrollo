@@ -19,6 +19,10 @@
             'gallery.created' => 'Imagen agregada a la galería',
             'gallery.updated' => 'Imagen de la galería actualizada',
             'gallery.deleted' => 'Imagen eliminada de la galería',
+            'contact.updated' => 'Datos de contacto actualizados',
+            'social.created' => 'Enlace social agregado',
+            'social.updated' => 'Enlace social actualizado',
+            'social.deleted' => 'Enlace social eliminado',
         ];
 
         $streamState = ! $station->status->isActive()
@@ -123,6 +127,13 @@
             <p class="mt-4 text-3xl font-semibold">{{ $galleryCount }}</p>
             <p class="text-sm text-ink-muted">imágenes publicadas</p>
             <a href="{{ route('admin.gallery.index') }}" class="action-secondary mt-5 w-full">Administrar galería</a>
+        </section>
+
+        <section class="surface-card">
+            <h2 class="text-lg font-semibold">Contacto y redes</h2>
+            <p class="mt-4 text-3xl font-semibold">{{ $socialLinkCount }}</p>
+            <p class="text-sm text-ink-muted">enlaces sociales activos</p>
+            <a href="{{ route('admin.contact.edit') }}" class="action-secondary mt-5 w-full">Administrar contacto</a>
         </section>
     </div>
 
