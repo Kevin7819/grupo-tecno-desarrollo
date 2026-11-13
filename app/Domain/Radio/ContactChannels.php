@@ -17,24 +17,43 @@ final readonly class ContactChannels
     private function __construct(
         public ?string $email,
         public array $social,
+        public ?string $phone = null,
     ) {}
 
     /**
      * @param  array<array-key, mixed>  $social
      */
-    public static function fromValues(?string $email, array $social): self
+    public static function fromValues(?string $email, array $social, ?string $phone = null): self
     {
         $email = trim((string) $email);
+        $phone = trim((string) $phone);
 
         return new self(
             email: self::isValidEmail($email) ? $email : null,
             social: self::validSocialLinks($social),
+            phone: self::isValidPhone($phone) ? $phone : null,
         );
     }
 
     public function hasEmail(): bool
     {
         return $this->email !== null;
+    }
+
+    public function hasPhone(): bool
+    {
+        return $this->phone !== null;
+    }
+
+    public function tel(): ?string
+    {
+        if ($this->phone === null) {
+            return null;
+        }
+
+        $digits = preg_replace('/[^0-9+]/', '', $this->phone);
+
+        return $digits !== '' ? 'tel:'.$digits : null;
     }
 
     public function hasSocial(): bool
@@ -44,7 +63,7 @@ final readonly class ContactChannels
 
     public function isEmpty(): bool
     {
-        return ! $this->hasEmail() && ! $this->hasSocial();
+        return ! $this->hasEmail() && ! $this->hasPhone() && ! $this->hasSocial();
     }
 
     public function mailto(): ?string
@@ -77,6 +96,11 @@ final readonly class ContactChannels
     {
         return $email !== ''
             && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private static function isValidPhone(string $phone): bool
+    {
+        return $phone !== '' && preg_match('/^[0-9+()\-\s.]{6,30}$/', $phone) === 1;
     }
 
     private static function isValidUrl(string $url): bool

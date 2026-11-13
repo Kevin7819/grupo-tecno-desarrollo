@@ -8,5 +8,6 @@ final readonly class AdminAccount
         public int $id,
         public string $name,
         public string $email,
+        public ?\DateTimeImmutable $createdAt = null,
     ) {}
 }
