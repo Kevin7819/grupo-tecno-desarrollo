@@ -12,11 +12,19 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * Intentionally empty: production administrators are created with
-     * `php artisan radio:create-admin`, never with a public default password.
+     * Both seeders are development helpers that gate themselves: they run
+     * only in the environments listed in `config/seeding.php` and only when
+     * their credentials are configured. In any other situation they skip,
+     * so `db:seed` never creates an account by accident.
+     *
+     * Production administrators are still provisioned with
+     * `php artisan radio:create-admin`.
      */
     public function run(): void
     {
-        // No default users or administrators.
+        $this->call([
+            UserSeeder::class,
+            AdminUserSeeder::class,
+        ]);
     }
 }
