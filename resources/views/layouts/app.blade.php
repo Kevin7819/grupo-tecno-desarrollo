@@ -34,21 +34,27 @@
         Saltar al contenido
     </a>
 
-    @php($streamConfigured = $stream->isConfigured())
+    @php
+        $stationName = $stationSettings->stationName ?? 'Grupo Tecno Desarrollo';
+        $stationLogo = $stationSettings->logoPath !== null
+            ? Storage::disk('public')->url($stationSettings->logoPath)
+            : asset('Logo-mark.png');
+        $broadcasting = $stationSettings->isBroadcasting();
+    @endphp
 
     <header class="sticky top-0 z-30 border-b border-surface-border bg-surface-base/85 backdrop-blur">
         <div class="mx-auto flex w-full max-w-6xl items-center gap-3 px-3 py-3 sm:px-6 lg:px-8">
             <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2.5 rounded-lg">
-                <img src="{{ asset('Logo-mark.png') }}"
+                <img src="{{ $stationLogo }}"
                      alt=""
                      width="270"
                      height="325"
-                     class="h-9 w-auto shrink-0 rounded-lg">
+                     class="h-9 w-auto shrink-0 rounded-lg object-contain">
                 <span class="min-w-0">
-                    <span class="block truncate text-sm font-semibold tracking-wide text-ink">Grupo Tecno Desarrollo</span>
+                    <span class="block truncate text-sm font-semibold tracking-wide text-ink">{{ $stationName }}</span>
                     <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span class="text-[0.625rem] font-medium uppercase tracking-[0.18em] text-ink-muted">Radio por Internet</span>
-                        @if ($streamConfigured)
+                        @if ($broadcasting)
                             <span class="inline-flex items-center gap-1.5 rounded-full border border-brand/40 bg-brand-soft px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-widest text-brand">
                                 <span class="live-dot" aria-hidden="true"></span>
                                 EN VIVO
@@ -66,14 +72,16 @@
             </nav>
 
             <div class="ml-auto flex shrink-0 items-center gap-1.5 lg:ml-2">
-                <a href="{{ route('home') }}#reproductor"
-                   data-player-start
-                   class="action-primary hidden px-4 py-2.5 sm:inline-flex">
-                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                    </svg>
-                    Escuchar en vivo
-                </a>
+                @if ($broadcasting)
+                    <a href="{{ route('home') }}#reproductor"
+                       data-player-start
+                       class="action-primary hidden px-4 py-2.5 sm:inline-flex">
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                        </svg>
+                        Escuchar en vivo
+                    </a>
+                @endif
 
                 <div class="hidden items-center gap-1 xl:flex">
                     @auth('web')
@@ -141,13 +149,13 @@
         <div class="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
             <div>
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('Logo-mark.png') }}"
+                    <img src="{{ $stationLogo }}"
                          alt=""
                          width="270"
                          height="325"
-                         class="h-10 w-auto rounded-lg">
+                         class="h-10 w-auto rounded-lg object-contain">
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-ink">Grupo Tecno Desarrollo</p>
+                        <p class="text-sm font-semibold text-ink">{{ $stationName }}</p>
                         <p class="text-xs uppercase tracking-[0.18em] text-ink-muted">Radio por Internet</p>
                     </div>
                 </div>
@@ -190,7 +198,7 @@
 
         <div class="border-t border-surface-border">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-5 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-                <p>© {{ now()->year }} Grupo Tecno Desarrollo</p>
+                <p>© {{ now()->year }} {{ $stationName }}</p>
                 <p>El audio se reproduce desde el proveedor de transmisión externo.</p>
             </div>
         </div>

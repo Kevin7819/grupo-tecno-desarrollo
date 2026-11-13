@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 final class BrandAssetsTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Public brand files the layouts reference. Keep in sync with the views.
      *

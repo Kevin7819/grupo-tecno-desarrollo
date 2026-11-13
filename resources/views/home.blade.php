@@ -11,7 +11,11 @@
 
         <div class="relative mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:px-8">
             <div class="min-w-0">
-                <p class="section-eyebrow">Radio por Internet</p>
+                @if ($station->slogan !== null)
+                    <p class="section-eyebrow">{{ $station->slogan }}</p>
+                @else
+                    <p class="section-eyebrow">Radio por Internet</p>
+                @endif
 
                 <h1 class="mt-4 text-balance text-4xl font-semibold tracking-tight text-ink sm:text-5xl lg:text-6xl">
                     Tu música, tu momento
@@ -24,12 +28,14 @@
                 </p>
 
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    <a href="#reproductor" data-player-start class="action-primary">
-                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                        </svg>
-                        Escuchar ahora
-                    </a>
+                    @if ($station->status->isActive())
+                        <a href="#reproductor" data-player-start class="action-primary">
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                            </svg>
+                            Escuchar ahora
+                        </a>
+                    @endif
 
                     <a href="#nosotros" class="action-secondary">
                         Conocer la emisora
@@ -44,7 +50,9 @@
                         Audio en el navegador
                     </li>
 
-                    @if ($stream->isConfigured())
+                    @if (! $station->status->isActive())
+                        <li class="chip">Emisora {{ mb_strtolower($station->status->label()) }}</li>
+                    @elseif ($stream->isConfigured())
                         <li class="chip">
                             <span class="live-dot" aria-hidden="true"></span>
                             Estado:
@@ -62,7 +70,15 @@
             </div>
 
             <div class="min-w-0">
-                @include('partials.player')
+                @if ($station->status->isActive())
+                    @include('partials.player')
+                @else
+                    <div class="surface-card">
+                        <p class="section-eyebrow">Estado de la emisora</p>
+                        <p class="section-title text-2xl">{{ $station->status->label() }}</p>
+                        <p class="mt-3 text-sm text-ink-muted">{{ $station->status->publicNotice() }}</p>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -73,11 +89,15 @@
             <div class="max-w-2xl">
                 <p class="section-eyebrow">Nosotros</p>
                 <h2 class="section-title">Sobre la emisora</h2>
-                <p class="section-lead">
-                    Grupo Tecno Desarrollo es un proyecto de radio por Internet en construcción. La idea es
-                    simple: una señal de audio que se escucha desde el navegador, sin instalar aplicaciones.
-                    La identidad, la programación y los servicios definitivos se publicarán cuando estén aprobados.
-                </p>
+                @if ($station->description !== null)
+                    <p class="section-lead">{{ $station->description }}</p>
+                @else
+                    <p class="section-lead">
+                        Grupo Tecno Desarrollo es un proyecto de radio por Internet en construcción. La idea es
+                        simple: una señal de audio que se escucha desde el navegador, sin instalar aplicaciones.
+                        La identidad, la programación y los servicios definitivos se publicarán cuando estén aprobados.
+                    </p>
+                @endif
             </div>
 
             <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -129,14 +149,19 @@
         <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl">
                 <p class="section-eyebrow">Programación</p>
-                <h2 class="section-title">Bloques y propuestas</h2>
+                <h2 class="section-title">{{ $programs === [] ? 'Bloques y propuestas' : 'Programas publicados' }}</h2>
                 <p class="section-lead">
-                    Todavía no hay una parrilla confirmada. Estos bloques son ejemplos de estructura y cada uno
-                    indica su estado real.
+                    @if ($programs === [])
+                        Todavía no hay una parrilla confirmada. Estos bloques son ejemplos de estructura y cada uno
+                        indica su estado real.
+                    @else
+                        Programas publicados por la emisora, con sus días y horarios.
+                    @endif
                 </p>
             </div>
 
-            <div class="mt-6 rounded-2xl border border-surface-border bg-surface-card/60 p-4 sm:p-5">
+            @if ($programs === [])
+                <div class="mt-6 rounded-2xl border border-surface-border bg-surface-card/60 p-4 sm:p-5">
                 <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-ink-muted">Estados de la parrilla</h3>
                 <ul class="mt-3 grid gap-3 text-sm text-ink-muted sm:grid-cols-3">
                     <li>
@@ -199,6 +224,54 @@
                 Horarios, locutores, programas y eventos no están confirmados. Esta sección no describe
                 emisiones reales.
             </p>
+            @else
+                <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($programs as $program)
+                        @php
+                            $activeHosts = array_values(array_filter(
+                                $program->hosts,
+                                static fn ($host): bool => $host->isActive,
+                            ));
+                        @endphp
+
+                        <article class="surface-card">
+                            @if ($program->coverPath !== null)
+                                <img src="{{ Storage::disk('public')->url($program->coverPath) }}"
+                                     alt="Portada de {{ $program->name }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="mb-4 h-36 w-full rounded-xl border border-surface-border object-cover">
+                            @endif
+
+                            <p class="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                                {{ $program->firstSlot()?->weekday?->label() ?? 'Sin día asignado' }}
+                            </p>
+                            <h3 class="mt-2 text-base font-semibold text-ink">{{ $program->name }}</h3>
+
+                            @if ($program->schedule !== [])
+                                <ul class="mt-3 space-y-1 text-sm text-ink-muted">
+                                    @foreach ($program->schedule as $slot)
+                                        <li>
+                                            <span class="font-medium text-ink">{{ $slot->weekday->label() }}</span>
+                                            · {{ $slot->timeRange() }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
+                            @if ($program->description !== null)
+                                <p class="mt-3 text-sm text-ink-muted">{{ $program->description }}</p>
+                            @endif
+
+                            @if ($activeHosts !== [])
+                                <p class="mt-3 text-xs text-ink-muted">
+                                    Con {{ implode(', ', array_map(static fn ($host): string => $host->name, $activeHosts)) }}
+                                </p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </section>
 
