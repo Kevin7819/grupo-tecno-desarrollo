@@ -15,7 +15,7 @@ Dependency rule: `Domain` depends on nothing; `Application` depends on `Domain` 
 
 What we deliberately did **not** build:
 
-- A repository per model. Only two repositories exist, both because a use case must persist without knowing Eloquent: `ListenerRepository` and `AdminAccountRepository`.
+- A repository per model. Contracts exist only where an HTTP controller must persist without importing Eloquent: listener accounts, administrator accounts and the CMS modules (`StationSettingsRepository`, `ProgramRepository`, `HostRepository`, `SiteContentRepository`, `GalleryRepository`, `ContactRepository`, `AdminActivityRepository`).
 - An interface per class. `StreamFormat` and `StreamConfig` are plain value objects with no contract.
 - A generic `BaseRepository`. It would wrap Eloquent without isolating anything.
 - A service container "manager" layer. Bindings live in `AppServiceProvider`.
@@ -84,7 +84,7 @@ Email verification stays prepared (`email_verified_at` column) but is not enforc
 
 `users`, `password_reset_tokens` and `sessions` come from the skeleton and are used by the current configuration. `cache`, `cache_locks`, `jobs`, `job_batches` and `failed_jobs` are kept because `.env` selects the database cache and queue drivers.
 
-Added: `admin_users`. Not added: `admin_password_reset_tokens` (no approved flow), schedules, programmes, hosts, news, podcasts (no approved content or requirements).
+Added: `admin_users`, and the CMS tables `station_settings`, `hosts`, `programs`, `program_host`, `program_schedules`, `admin_activities`, `site_contents`, `gallery_images`, `contact_settings` and `social_links`. Not added: `admin_password_reset_tokens` (no approved flow), news, podcasts (no approved requirements). Every CMS migration is additive; SQLite stays the engine.
 
 ## 7. Testing strategy
 
@@ -116,7 +116,19 @@ The home page is one page with anchored sections (`#inicio`, `#nosotros`, `#prog
 - **Visualizer**: decorative only. The bars animate through CSS while `[data-player-state='playing']` and a visible caption states that it does not measure the audio. Web Audio analysis was rejected because it requires `crossorigin` on the audio element, which would break playback entirely if the production provider omits CORS headers.
 - **Contact channels**: `ContactChannels` (domain) keeps only a valid e-mail and `https://` URLs, so an unreviewed configuration value can never render a broken or unsafe control. Empty configuration renders an explicit empty state instead of buttons that do nothing.
 
-## 10. Pending decisions
+## 10. Admin CMS
+
+Eight areas live under `admin/*` behind `admin.auth`: dashboard, station settings, public page content, programming, hosts, gallery, contact/social and administrator accounts. Each write is delegated to a use case in `App\Application\Cms` (or `App\Application\Admin` for accounts) and appends a row to `admin_activities` with a snapshot of the actor name, so the history survives an account deletion. Confirmations are separate GET screens with a form, so deletion works under the production CSP without inline JavaScript.
+
+- **Station settings**: one row in `station_settings`. Precedence is: valid stored value, then the `RADIO_STREAM_*` fallback per field, then unconfigured. The stored URL is validated again on read, so a bad row never silently kills the player. The external test stream stays labeled as a test signal.
+- **Public copy**: one row in `site_contents`. The editable fields are optional; an empty or missing value falls back to the original text defined in `App\Domain\Cms\SiteContent`, so the homepage never depends on the CMS being filled in.
+- **Programming and hosts**: published programs only on the homepage; schedules are ISO weekday 1-7 with start/end times, valid across several days, and conflicts are rejected by the use case. Example rows are labeled test data.
+- **Gallery**: only published images reach the homepage, ordered by `sort_order`. With no published image the page keeps the four static brand illustrations. Files are stored on the `public` disk and removed when replaced or deleted. A missing `public/storage` link is reported on the dashboard instead of failing silently.
+- **Contact and social**: `ConfiguredContactChannelsProvider` composes the existing `ConfigContactChannelsProvider`. A valid stored channel wins, otherwise the `RADIO_CONTACT_*`/`RADIO_SOCIAL_*` value is used, otherwise the channel is hidden. E-mail, phone and `https://` URLs are validated both when saved and when read.
+- **Administrator accounts**: a single administrator role. The current account and the last remaining account cannot be deleted; passwords are hashed through `PasswordHasher`; changing your own password regenerates the session; there is still no public registration.
+- **Dashboard**: real counts only (programs by status, active hosts, published gallery images, active social links, accounts) plus the next programs and the activity log. No listener, playback or audience metric is shown because there is no data source for it.
+
+## 11. Pending decisions
 
 1. `hls.js` for HLS in non-Safari browsers.
 2. Administrator password recovery flow.
