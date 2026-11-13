@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthenticatedSessionController;
+use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HostController;
@@ -51,5 +52,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/galeria/{image}', [GalleryController::class, 'update'])->name('gallery.update');
         Route::get('/galeria/{image}/eliminar', [GalleryController::class, 'confirmDelete'])->name('gallery.delete');
         Route::delete('/galeria/{image}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+
+        Route::get('/contacto', [ContactController::class, 'edit'])->name('contact.edit');
+        Route::put('/contacto', [ContactController::class, 'update'])->name('contact.update');
+        Route::get('/contacto/redes/nuevo', [ContactController::class, 'createLink'])->name('contact.links.create');
+        Route::post('/contacto/redes', [ContactController::class, 'storeLink'])->name('contact.links.store');
+        Route::get('/contacto/redes/{link}/editar', [ContactController::class, 'editLink'])->name('contact.links.edit');
+        Route::put('/contacto/redes/{link}', [ContactController::class, 'updateLink'])->name('contact.links.update');
+        Route::get('/contacto/redes/{link}/eliminar', [ContactController::class, 'confirmDeleteLink'])->name('contact.links.delete');
+        Route::delete('/contacto/redes/{link}', [ContactController::class, 'destroyLink'])->name('contact.links.destroy');
     });
 });

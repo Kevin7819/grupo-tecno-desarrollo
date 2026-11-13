@@ -193,6 +193,30 @@
                         </a>
                     </p>
                 @endif
+
+                @if ($contactChannels->hasPhone())
+                    <p class="mt-2 text-sm">
+                        <a href="{{ $contactChannels->tel() }}" class="font-medium text-ink underline decoration-brand/60 underline-offset-4 hover:text-brand">
+                            {{ $contactChannels->phone }}
+                        </a>
+                    </p>
+                @endif
+
+                @if ($contactChannels->hasSocial())
+                    <ul class="mt-4 flex flex-wrap gap-2">
+                        @foreach ($contactChannels->social as $label => $url)
+                            <li>
+                                <a href="{{ $url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="inline-flex min-h-9 items-center rounded-lg border border-surface-border px-2.5 text-xs font-medium text-ink-muted transition-colors hover:border-brand hover:text-brand">
+                                    {{ $label }}
+                                    <span class="sr-only">(se abre en una pestaña nueva)</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         </div>
 

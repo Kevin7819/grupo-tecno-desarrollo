@@ -410,7 +410,19 @@
                                 {{ $channels->email }}
                             </a>
                         </p>
-                    @else
+                    @endif
+
+                    @if ($channels->hasPhone())
+                        <p class="mt-4 text-sm text-ink-muted">Llamanos:</p>
+                        <p class="mt-2">
+                            <a href="{{ $channels->tel() }}"
+                               class="inline-flex min-h-11 items-center font-medium text-ink underline decoration-brand/60 underline-offset-4 hover:text-brand">
+                                {{ $channels->phone }}
+                            </a>
+                        </p>
+                    @endif
+
+                    @if (! $channels->hasEmail() && ! $channels->hasPhone())
                         <div class="mt-4 rounded-xl border border-dashed border-surface-border bg-surface-base/40 p-4">
                             <p class="text-sm text-ink">Todavía no hay un correo de contacto publicado.</p>
                             <p class="mt-1 text-xs text-ink-muted">

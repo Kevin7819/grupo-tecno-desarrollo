@@ -46,6 +46,7 @@
                     ['admin.programs.index', 'admin.programs.*', 'Programación'],
                     ['admin.hosts.index', 'admin.hosts.*', 'Locutores'],
                     ['admin.gallery.index', 'admin.gallery.*', 'Galería'],
+                    ['admin.contact.edit', 'admin.contact.*', 'Redes y contacto'],
                 ] as [$route, $pattern, $label])
                     @php($active = request()->routeIs($pattern))
                     <li>

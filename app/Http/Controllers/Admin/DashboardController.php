@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Application\Cms\AdminActivityRepository;
+use App\Application\Cms\ContactRepository;
 use App\Application\Cms\GalleryRepository;
 use App\Application\Cms\HostRepository;
 use App\Application\Cms\ProgramRepository;
@@ -20,6 +21,7 @@ final class DashboardController extends Controller
         ProgramRepository $programs,
         HostRepository $hosts,
         GalleryRepository $gallery,
+        ContactRepository $contact,
         AdminActivityRepository $activity,
         UpcomingPrograms $upcoming,
     ): View {
@@ -32,6 +34,7 @@ final class DashboardController extends Controller
             'inactiveCount' => $programs->countByStatus(ProgramStatus::Inactive),
             'hostCount' => $hosts->countActive(),
             'galleryCount' => $gallery->countPublished(),
+            'socialLinkCount' => count($contact->activeSocialLinks()),
             'upcoming' => $upcoming->handle(
                 $programs->all(),
                 Weekday::fromNumber((int) now()->isoWeekday()),
