@@ -28,6 +28,8 @@ final class AdminCmsAccessTest extends TestCase
             '/admin/galeria/nuevo',
             '/admin/contacto',
             '/admin/contacto/redes/nuevo',
+            '/admin/cuentas',
+            '/admin/cuentas/nueva',
         ];
     }
 
@@ -61,12 +63,14 @@ final class AdminCmsAccessTest extends TestCase
             ->assertSee('Página pública')
             ->assertSee('Galería')
             ->assertSee('Contacto y redes')
+            ->assertSee('Cuentas')
             ->assertSee(route('admin.settings.edit'), false)
             ->assertSee(route('admin.programs.index'), false)
             ->assertSee(route('admin.hosts.index'), false)
             ->assertSee(route('admin.content.edit'), false)
             ->assertSee(route('admin.gallery.index'), false)
-            ->assertSee(route('admin.contact.edit'), false);
+            ->assertSee(route('admin.contact.edit'), false)
+            ->assertSee(route('admin.accounts.index'), false);
     }
 
     public function test_the_cms_sections_render_for_an_administrator(): void
@@ -84,6 +88,8 @@ final class AdminCmsAccessTest extends TestCase
             '/admin/galeria/nuevo',
             '/admin/contacto',
             '/admin/contacto/redes/nuevo',
+            '/admin/cuentas',
+            '/admin/cuentas/nueva',
         ] as $route) {
             $this->actingAs($admin, 'admin')->get($route)->assertOk();
         }
