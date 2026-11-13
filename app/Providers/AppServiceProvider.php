@@ -5,12 +5,29 @@ namespace App\Providers;
 use App\Application\Account\ListenerRepository;
 use App\Application\Account\PasswordHasher;
 use App\Application\Admin\AdminAccountRepository;
+use App\Application\Cms\AdminActivityLogger;
+use App\Application\Cms\AdminActivityRepository;
+use App\Application\Cms\ContactRepository;
+use App\Application\Cms\GalleryRepository;
+use App\Application\Cms\HostRepository;
+use App\Application\Cms\ProgramRepository;
+use App\Application\Cms\SiteContentRepository;
+use App\Application\Cms\StationSettingsProvider;
+use App\Application\Cms\StationSettingsRepository;
 use App\Application\Radio\ContactChannelsProvider;
 use App\Application\Radio\StreamConfigProvider;
+use App\Infrastructure\Cms\ConfiguredContactChannelsProvider;
+use App\Infrastructure\Cms\ConfiguredStationSettingsProvider;
 use App\Infrastructure\Persistence\Eloquent\EloquentAdminAccountRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentAdminActivityRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentContactRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentGalleryRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentHostRepository;
 use App\Infrastructure\Persistence\Eloquent\EloquentListenerRepository;
-use App\Infrastructure\Radio\ConfigContactChannelsProvider;
-use App\Infrastructure\Radio\ConfigStreamConfigProvider;
+use App\Infrastructure\Persistence\Eloquent\EloquentProgramRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentSiteContentRepository;
+use App\Infrastructure\Persistence\Eloquent\EloquentStationSettingsRepository;
+use App\Infrastructure\Radio\ConfiguredStreamConfigProvider;
 use App\Infrastructure\Security\LaravelPasswordHasher;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -30,8 +47,17 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ListenerRepository::class, EloquentListenerRepository::class);
         $this->app->bind(AdminAccountRepository::class, EloquentAdminAccountRepository::class);
         $this->app->bind(PasswordHasher::class, LaravelPasswordHasher::class);
-        $this->app->bind(StreamConfigProvider::class, ConfigStreamConfigProvider::class);
-        $this->app->bind(ContactChannelsProvider::class, ConfigContactChannelsProvider::class);
+        $this->app->bind(StationSettingsRepository::class, EloquentStationSettingsRepository::class);
+        $this->app->bind(ProgramRepository::class, EloquentProgramRepository::class);
+        $this->app->bind(HostRepository::class, EloquentHostRepository::class);
+        $this->app->bind(SiteContentRepository::class, EloquentSiteContentRepository::class);
+        $this->app->bind(GalleryRepository::class, EloquentGalleryRepository::class);
+        $this->app->bind(ContactRepository::class, EloquentContactRepository::class);
+        $this->app->bind(AdminActivityLogger::class, EloquentAdminActivityRepository::class);
+        $this->app->bind(AdminActivityRepository::class, EloquentAdminActivityRepository::class);
+        $this->app->bind(StationSettingsProvider::class, ConfiguredStationSettingsProvider::class);
+        $this->app->bind(StreamConfigProvider::class, ConfiguredStreamConfigProvider::class);
+        $this->app->bind(ContactChannelsProvider::class, ConfiguredContactChannelsProvider::class);
     }
 
     /**
@@ -51,8 +77,11 @@ class AppServiceProvider extends ServiceProvider
      */
     private function sharePublicChrome(): void
     {
-        ViewFacade::composer('layouts.app', function (View $view): void {
-            $view->with('stream', $this->app->make(StreamConfigProvider::class)->current());
+        ViewFacade::composer(['layouts.app', 'layouts.admin'], function (View $view): void {
+            $settings = $this->app->make(StationSettingsProvider::class)->current();
+
+            $view->with('stationSettings', $settings);
+            $view->with('stream', $settings->stream);
             $view->with('contactChannels', $this->app->make(ContactChannelsProvider::class)->current());
         });
     }
