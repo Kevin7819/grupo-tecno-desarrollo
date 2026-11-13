@@ -15,6 +15,10 @@
             'host.created' => 'Locutor creado',
             'host.updated' => 'Locutor actualizado',
             'host.deleted' => 'Locutor eliminado',
+            'content.updated' => 'Contenido de la página pública actualizado',
+            'gallery.created' => 'Imagen agregada a la galería',
+            'gallery.updated' => 'Imagen de la galería actualizada',
+            'gallery.deleted' => 'Imagen eliminada de la galería',
         ];
 
         $streamState = ! $station->status->isActive()
@@ -105,6 +109,23 @@
         </section>
     </div>
 
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section class="surface-card">
+            <h2 class="text-lg font-semibold">Página pública</h2>
+            <p class="mt-4 text-sm text-ink-muted">
+                Textos de portada, presentación, galería y contacto.
+            </p>
+            <a href="{{ route('admin.content.edit') }}" class="action-secondary mt-5 w-full">Editar contenido</a>
+        </section>
+
+        <section class="surface-card">
+            <h2 class="text-lg font-semibold">Galería</h2>
+            <p class="mt-4 text-3xl font-semibold">{{ $galleryCount }}</p>
+            <p class="text-sm text-ink-muted">imágenes publicadas</p>
+            <a href="{{ route('admin.gallery.index') }}" class="action-secondary mt-5 w-full">Administrar galería</a>
+        </section>
+    </div>
+
     <div class="mt-8 grid gap-4 lg:grid-cols-2">
         <section class="surface-card">
             <div class="flex items-center justify-between gap-3">
@@ -175,6 +196,8 @@
             <a href="{{ route('admin.programs.create') }}" class="action-primary">Nuevo programa</a>
             <a href="{{ route('admin.hosts.create') }}" class="action-secondary">Nuevo locutor</a>
             <a href="{{ route('admin.settings.edit') }}" class="action-secondary">Configuración de la emisora</a>
+            <a href="{{ route('admin.content.edit') }}" class="action-secondary">Contenido público</a>
+            <a href="{{ route('admin.gallery.create') }}" class="action-secondary">Nueva imagen</a>
         </div>
     </section>
 

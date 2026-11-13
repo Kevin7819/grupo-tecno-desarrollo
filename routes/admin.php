@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Admin\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HostController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\SiteContentController;
 use App\Http\Controllers\Admin\StationSettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +24,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/emisora', [StationSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/emisora', [StationSettingsController::class, 'update'])->name('settings.update');
 
+        Route::get('/contenido', [SiteContentController::class, 'edit'])->name('content.edit');
+        Route::put('/contenido', [SiteContentController::class, 'update'])->name('content.update');
+
         Route::get('/programacion', [ProgramController::class, 'index'])->name('programs.index');
         Route::get('/programacion/nuevo', [ProgramController::class, 'create'])->name('programs.create');
         Route::post('/programacion', [ProgramController::class, 'store'])->name('programs.store');
@@ -39,5 +44,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/locutores/{host}/eliminar', [HostController::class, 'confirmDelete'])->name('hosts.delete');
         Route::delete('/locutores/{host}', [HostController::class, 'destroy'])->name('hosts.destroy');
 
+        Route::get('/galeria', [GalleryController::class, 'index'])->name('gallery.index');
+        Route::get('/galeria/nuevo', [GalleryController::class, 'create'])->name('gallery.create');
+        Route::post('/galeria', [GalleryController::class, 'store'])->name('gallery.store');
+        Route::get('/galeria/{image}/editar', [GalleryController::class, 'edit'])->name('gallery.edit');
+        Route::put('/galeria/{image}', [GalleryController::class, 'update'])->name('gallery.update');
+        Route::get('/galeria/{image}/eliminar', [GalleryController::class, 'confirmDelete'])->name('gallery.delete');
+        Route::delete('/galeria/{image}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
     });
 });

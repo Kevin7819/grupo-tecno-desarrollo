@@ -42,8 +42,10 @@
                 @foreach ([
                     ['admin.dashboard', 'admin.dashboard', 'Panel'],
                     ['admin.settings.edit', 'admin.settings.*', 'Emisora'],
+                    ['admin.content.edit', 'admin.content.*', 'Contenido'],
                     ['admin.programs.index', 'admin.programs.*', 'Programación'],
                     ['admin.hosts.index', 'admin.hosts.*', 'Locutores'],
+                    ['admin.gallery.index', 'admin.gallery.*', 'Galería'],
                 ] as [$route, $pattern, $label])
                     @php($active = request()->routeIs($pattern))
                     <li>
