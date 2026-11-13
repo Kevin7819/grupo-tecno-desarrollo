@@ -11,20 +11,14 @@
 
         <div class="relative mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12 lg:px-8">
             <div class="min-w-0">
-                @if ($station->slogan !== null)
-                    <p class="section-eyebrow">{{ $station->slogan }}</p>
-                @else
-                    <p class="section-eyebrow">Radio por Internet</p>
-                @endif
+                <p class="section-eyebrow">{{ $content->heroKickerText($station->slogan) }}</p>
 
                 <h1 class="mt-4 text-balance text-4xl font-semibold tracking-tight text-ink sm:text-5xl lg:text-6xl">
-                    Tu música, tu momento
+                    {{ $content->heroTitleText() }}
                 </h1>
 
                 <p class="mt-5 max-w-xl text-base text-ink-muted sm:text-lg">
-                    Grupo Tecno Desarrollo es un proyecto de radio por Internet. Abrí el reproductor y escuchá
-                    desde el navegador, en la computadora o en el teléfono. La programación definitiva se irá
-                    publicando a medida que esté aprobada.
+                    {{ $content->heroIntroText() }}
                 </p>
 
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -88,16 +82,10 @@
         <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl">
                 <p class="section-eyebrow">Nosotros</p>
-                <h2 class="section-title">Sobre la emisora</h2>
-                @if ($station->description !== null)
-                    <p class="section-lead">{{ $station->description }}</p>
-                @else
-                    <p class="section-lead">
-                        Grupo Tecno Desarrollo es un proyecto de radio por Internet en construcción. La idea es
-                        simple: una señal de audio que se escucha desde el navegador, sin instalar aplicaciones.
-                        La identidad, la programación y los servicios definitivos se publicarán cuando estén aprobados.
-                    </p>
-                @endif
+                <h2 class="section-title">{{ $content->aboutTitleText() }}</h2>
+                <p class="section-lead">
+                    {{ $content->aboutTextValue($station->description) }}
+                </p>
             </div>
 
             <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -280,13 +268,33 @@
         <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl">
                 <p class="section-eyebrow">Galería</p>
-                <h2 class="section-title">Identidad y entorno sonoro</h2>
+                <h2 class="section-title">{{ $content->galleryTitleText() }}</h2>
                 <p class="section-lead">
-                    Composiciones gráficas construidas con los recursos de marca del proyecto. Todavía no hay
-                    fotografías de cabina ni de producción.
+                    {{ $content->galleryIntroText() }}
                 </p>
             </div>
 
+            @if ($gallery !== [])
+                <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach ($gallery as $image)
+                        <figure class="overflow-hidden rounded-2xl border border-surface-border bg-surface-card">
+                            <div class="flex items-center justify-center bg-surface-base/60">
+                                <img src="{{ Storage::disk('public')->url($image->imagePath) }}"
+                                     alt="{{ $image->altText }}"
+                                     loading="lazy"
+                                     decoding="async"
+                                     class="h-48 w-full object-cover">
+                            </div>
+                            <figcaption class="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                                <span class="text-sm text-ink">{{ $image->title }}</span>
+                                @if ($image->caption !== null)
+                                    <span class="text-[0.6875rem] font-semibold uppercase tracking-widest text-ink-muted">{{ $image->caption }}</span>
+                                @endif
+                            </figcaption>
+                        </figure>
+                    @endforeach
+                </div>
+            @else
             <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <figure class="overflow-hidden rounded-2xl border border-surface-border bg-surface-card">
                     <div class="gallery-art gallery-art--mark flex items-center justify-center">
@@ -344,6 +352,7 @@
                 Las imágenes de esta sección son composiciones gráficas de marca. No son fotografías de
                 instalaciones reales de Grupo Tecno Desarrollo.
             </p>
+            @endif
         </div>
     </section>
 
@@ -352,10 +361,13 @@
         <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <div class="max-w-2xl">
                 <p class="section-eyebrow">Comunidad</p>
-                <h2 class="section-title">Comunidad y contacto</h2>
+                <h2 class="section-title">{{ $content->contactTitleText() }}</h2>
                 <p class="section-lead">
-                    Los canales oficiales se publicarán en esta sección cuando estén confirmados. Mientras
-                    tanto, no hay cuentas ni direcciones de contacto públicas que mostrar.
+                    @if ($channels->isEmpty())
+                        {{ $content->contactIntroText() }}
+                    @else
+                        {{ $content->contactIntro ?? 'Estos son los canales oficiales publicados por la emisora.' }}
+                    @endif
                 </p>
             </div>
 
